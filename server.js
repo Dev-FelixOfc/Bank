@@ -7,6 +7,7 @@ const app = express();
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
+const cardsRoutes = require('./routes/cards');
 const db = require('./database');
 
 app.use(express.json());
@@ -24,6 +25,7 @@ app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] })
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/cards', cardsRoutes);
 
 app.get('/api/public/profile/:alias', (req, res) => {
     try {
@@ -52,6 +54,10 @@ app.get('/@:alias', (req, res) => {
 
 app.get('/dash', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dash.html'));
+});
+
+app.get('/create-card', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'create-card.html'));
 });
 
 app.get('*', (req, res) => {
