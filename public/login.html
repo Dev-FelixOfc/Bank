@@ -1,0 +1,68 @@
+<div id="login-container" style="display: flex; flex-direction: column; min-height: 100vh; justify-content: center; align-items: center; padding: 24px; background: #ffffff; transition: background 0.3s ease;">
+    <div id="login-card" style="width: 100%; max-width: 400px; background: #ffffff; padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f1f3f9;">
+        
+        <div style="font-size: 28px; font-weight: 800; color: #6f42c1; text-align: center; margin-bottom: 8px;">Bank Kazuma</div>
+        <div style="font-size: 15px; color: #666666; text-align: center; margin-bottom: 32px;">Ingresa a tu cuenta de banca en línea</div>
+
+        <form id="form-login" onsubmit="event.preventDefault(); loguearUsuario();">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: #333333; margin-bottom: 8px;">Usuario</label>
+                <input type="text" id="log-username" required style="width: 100%; padding: 14px; border: 2px solid #e1e5ee; border-radius: 12px; font-size: 15px; outline: none; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 32px;">
+                <label style="display: block; font-size: 14px; font-weight: 600; color: #333333; margin-bottom: 8px;">Contraseña</label>
+                <input type="password" id="log-password" required style="width: 100%; padding: 14px; border: 2px solid #e1e5ee; border-radius: 12px; font-size: 15px; outline: none; box-sizing: border-box;">
+            </div>
+
+            <button type="submit" style="background: #6f42c1; color: #ffffff; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2);">
+                Ingresar
+            </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 24px; font-size: 14px; color: #666666;">
+            ¿No tienes cuenta? <span onclick="cargarVista('/register.html', '/signup')" style="color: #6f42c1; font-weight: 600; cursor: pointer;">Regístrate</span>
+        </div>
+
+        <div style="text-align: center; margin-top: 16px;">
+            <span onclick="cargarVista('/home.html', '/')" style="font-size: 13px; color: #999999; cursor: pointer;">Volver al inicio</span>
+        </div>
+    </div>
+</div>
+
+<script>
+(function verificarSesionActiva() {
+    // Si el token existe, pintamos todo de negro y redirigimos de inmediato
+    if (localStorage.getItem('token_kazuma')) {
+        const contenedor = document.getElementById('login-container');
+        if (contenedor) {
+            contenedor.style.background = '#000000';
+            document.getElementById('login-card').style.display = 'none';
+        }
+        window.location.href = '/dash';
+    }
+})();
+
+function loguearUsuario() {
+    const u = document.getElementById('log-username').value;
+    const p = document.getElementById('log-password').value;
+    if(!u || !p) return;
+
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: u, password: p })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.error) {
+            alert(data.error);
+        } else {
+            localStorage.setItem('token_kazuma', data.token);
+            // Redirección tradicional de navegador al sitio normal
+            window.location.href = '/dash';
+        }
+    })
+    .catch(e => console.error(e));
+}
+</script>
