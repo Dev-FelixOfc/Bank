@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - Bank Kazuma</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
+        .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; }
+        .logo { font-size: 22px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px; cursor: pointer; }
+        .logo span { color: #111111; }
+        .container { max-width: 600px; margin: 40px auto; padding: 0 24px; }
+        .box { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; }
+        .sub-text { color: #666666; font-size: 14px; margin-bottom: 32px; }
+        .form-group { margin-bottom: 24px; }
+        label { display: block; font-size: 14px; font-weight: 600; color: #333333; margin-bottom: 8px; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 14px; border: 2px solid #e1e5ee; border-radius: 12px; font-size: 15px; outline: none; box-sizing: border-box; background: #ffffff; }
+        input:disabled { background: #f1f3f9; color: #666666; border-color: #e1e5ee; cursor: not-allowed; }
+        .btn-save { background: #6f42c1; color: #ffffff; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2); }
+        .btn-save:hover { background: #5a32a3; }
+        .link-back { display: block; text-align: center; margin-top: 20px; font-size: 14px; color: #999999; cursor: pointer; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 350px; width: 100%;"></div>
+
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.href='/dash'">Bank <span>Kazuma</span></div>
+    </nav>
+
+    <div class="container">
+        <div class="box">
+            <h1>Configurar Cuenta</h1>
+            <div class="sub-text">Administra tu identidad virtual global y tus alias de cobro directo.</div>
+
+            <div class="form-group">
+                <label>Nombre de usuario (Inmutable)</label>
+                <input type="text" id="prof-username" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Correo electrónico</label>
+                <input type="email" id="prof-email" disabled>
+            </div>
+
+            <div class="form-group">
+                <label>Alias único de la red (Ej: kazuma77)</label>
+                <input type="text" id="prof-alias" placeholder="Configura tu alias para recibir transferencias">
+            </div>
+
+            <button class="btn-save" onclick="actualizarPerfil()">Guardar Cambios</button>
+            <a class="link-back" href="/dash">Volver al panel principal</a>
+        </div>
+    </div>
+
+    <script>
+        function mostrarNotificacion(mensaje, esError = true) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.background = esError ? '#fde8e8' : '#eafaf1';
+            toast.style.color = esError ? '#9b1c1c' : '#14532d';
+            toast.style.border = `1px solid ${esError ? '#f8b4b4' : '#84e1bc'}`;
+            toast.style.padding = '16px 20px';
+            toast.style.borderRadius = '12px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+            toast.style.display = 'flex';
+            toast.style.justifyContent = 'space-between';
+            toast.style.alignItems = 'center';
+            toast.style.fontSize = '14px';
+            toast.style.fontWeight = '600';
+            toast.style.animation = 'fadeIn 0.3s ease forwards';
+            
+            const texto = document.createElement('span');
+            texto.innerText = mensaje;
+            toast.appendChild(texto);
+            
+            const botonCerrar = document.createElement('button');
+            botonCerrar.innerText = '✕';
+            botonCerrar.style.background = 'none';
+            botonCerrar.style.border = 'none';
+            botonCerrar.style.color = esError ? '#9b1c1c' : '#14532d';
+            botonCerrar.style.cursor = 'pointer';
+            botonCerrar.style.marginLeft = '12px';
+            botonCerrar.style.fontSize = '16px';
+            botonCerrar.style.fontWeight = '700';
+            botonCerrar.onclick = () => toast.remove();
+            
+            toast.appendChild(botonCerrar);
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+        }
+
+        function cargarDatosPerfil() {
+            const token = localStorage.getItem('token_kazuma');
+            if (!token) { window.location.href = '/login'; return; }
+
+            fetch('/api/users/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.username) {
+                    document.getElementById('prof-username').value = data.username;
+                    document.getElementById('prof-email').value = data.email || '';
+                    document.getElementById('prof-alias').value = data.alias || '';
+                }
+            })
+            .catch(() => window.location.href = '/login');
+        }
+
+        function actualizarPerfil() {
+            const token = localStorage.getItem('token_kazuma');
+            const aliasVal = document.getElementById('prof-alias').value.trim();
+
+            fetch('/api/users/profile/update', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ alias: aliasVal })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    mostrarNotificacion(data.error, true);
+                } else {
+                    mostrarNotificacion("¡Perfil actualizado de manera exitosa!", false);
+                }
+            })
+            .catch(() => mostrarNotificacion("No se pudo conectar con el backend de perfiles.", true));
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarDatosPerfil);
+    </script>
+    <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }</style>
+</body>
+</html>
