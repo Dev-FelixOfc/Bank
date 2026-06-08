@@ -1,36 +1,31 @@
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./banco_virtual.db');
+const fs = require('fs');
+const path = require('path');
+const FILE_PATH = path.join(__dirname, 'banco_virtual.json');
 
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS usuarios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        email TEXT UNIQUE,
-        password TEXT,
-        alias TEXT UNIQUE,
-        perfil_publico INTEGER DEFAULT 0,
-        rol TEXT DEFAULT 'USER',
-        balance REAL DEFAULT 0.0
-    )`);
+function inicializarJSON() {
+    if (!fs.existsSync(FILE_PATH)) {
+        const estructuraInicial = {
+            usuarios: [],
+            tarjetas: [],
+            transacciones: []
+        };
+        fs.writeFileSync(FILE_PATH, JSON.stringify(estructuraInicial, null, 4), 'utf8');
+    }
+}
 
-    db.run(`CREATE TABLE IF NOT EXISTS tarjetas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        numero_tarjeta TEXT UNIQUE,
-        pin TEXT,
-        activa INTEGER DEFAULT 1,
-        FOREIGN KEY(user_id) REFERENCES usuarios(id)
-    )`);
+function leerDatos() {
+    inicializarJSON();
+    const contenido = fs.readFileSync(FILE_PATH, 'utf8');
+    return JSON.parse(contenido);
+}
 
-    db.run(`CREATE TABLE IF NOT EXISTS transacciones (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER,
-        tipo TEXT,
-        monto REAL,
-        descripcion TEXT,
-        fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES usuarios(id)
-    )`);
-});
+function guardarDatos(datos) {
+    fs.writeFileSync(FILE_PATH, JSON.stringify(datos, null, 4), 'utf8');
+}
 
-module.exports = db;
+inicializarJSON();
+
+module.exports = {
+    leerDatos,
+    guardarDatos
+};
