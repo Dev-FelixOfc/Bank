@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Tarjeta - Bank Kazuma</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
+        .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; }
+        .logo { font-size: 22px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px; cursor: pointer; }
+        .logo span { color: #111111; }
+        .container { max-width: 600px; margin: 40px auto; padding: 0 24px; }
+        .box { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+        h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
+        p { color: #666666; font-size: 14px; margin-bottom: 32px; line-height: 1.5; }
+        .visual-card { background: linear-gradient(135deg, #111111 0%, #333333 100%); color: #ffffff; padding: 30px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); position: relative; overflow: hidden; }
+        .card-brand { font-size: 18px; font-weight: 800; text-align: right; color: #f3ebff; }
+        .card-number { font-size: 22px; font-weight: 700; letter-spacing: 3px; margin: 30px 0 15px 0; font-family: monospace; }
+        .card-holder { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #b3b3b3; }
+        .btn-submit { background: #6f42c1; color: #ffffff; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2); transition: background 0.2s; }
+        .btn-submit:hover { background: #5a32a3; }
+        .link-back { display: block; text-align: center; margin-top: 20px; font-size: 14px; color: #999999; cursor: pointer; text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 350px; width: 100%;"></div>
+
+    <nav class="navbar">
+        <div class="logo" onclick="window.location.href='/dash'">Bank <span>Kazuma</span></div>
+    </nav>
+
+    <div class="container">
+        <div class="box">
+            <h1>Generar Tarjeta Virtual</h1>
+            <p>Obtén una tarjeta digital en segundos vinculada a tu cuenta. Úsala para pagar servicios e integrarla vía API en las plataformas del ecosistema.</p>
+            
+            <div class="visual-card">
+                <div class="card-brand">Kazuma Card</div>
+                <div class="card-number">•••• •••• •••• ••••</div>
+                <div class="card-holder" id="lblHolder">Cargando Usuario...</div>
+            </div>
+
+            <button class="btn-submit" onclick="solicitarNuevaTarjeta()">Generar Plástico Digital</button>
+            <a class="link-back" href="/dash">Volver al panel principal</a>
+        </div>
+    </div>
+
+    <script>
+        function mostrarNotificacion(mensaje, esError = true) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.style.background = esError ? '#fde8e8' : '#eafaf1';
+            toast.style.color = esError ? '#9b1c1c' : '#14532d';
+            toast.style.border = `1px solid ${esError ? '#f8b4b4' : '#84e1bc'}`;
+            toast.style.padding = '16px 20px';
+            toast.style.borderRadius = '12px';
+            toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+            toast.style.display = 'flex';
+            toast.style.justifyContent = 'space-between';
+            toast.style.alignItems = 'center';
+            toast.style.fontSize = '14px';
+            toast.style.fontWeight = '600';
+            toast.style.animation = 'fadeIn 0.3s ease forwards';
+            
+            const texto = document.createElement('span');
+            texto.innerText = mensaje;
+            toast.appendChild(texto);
+            
+            const botonCerrar = document.createElement('button');
+            botonCerrar.innerText = '✕';
+            botonCerrar.style.background = 'none';
+            botonCerrar.style.border = 'none';
+            botonCerrar.style.color = esError ? '#9b1c1c' : '#14532d';
+            botonCerrar.style.cursor = 'pointer';
+            botonCerrar.style.marginLeft = '12px';
+            botonCerrar.style.fontSize = '16px';
+            botonCerrar.style.fontWeight = '700';
+            botonCerrar.onclick = () => toast.remove();
+            
+            toast.appendChild(botonCerrar);
+            container.appendChild(toast);
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+        }
+
+        function verificarSesion() {
+            const token = localStorage.getItem('token_kazuma');
+            if (!token) { window.location.href = '/login'; return; }
+
+            fetch('/api/users/me', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.username) {
+                    document.getElementById('lblHolder').innerText = data.username;
+                }
+            })
+            .catch(() => window.location.href = '/login');
+        }
+
+        function solicitarNuevaTarjeta() {
+            const token = localStorage.getItem('token_kazuma');
+            fetch('/api/cards/new', {
+                method: 'POST',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    mostrarNotificacion(data.error, true);
+                } else {
+                    mostrarNotificacion("¡Tarjeta virtual creada con éxito!", false);
+                    setTimeout(() => { window.location.href = '/dash'; }, 1500);
+                }
+            })
+            .catch(() => mostrarNotificacion("No se pudo procesar la solicitud en el ecosistema.", true));
+        }
+
+        document.addEventListener('DOMContentLoaded', verificarSesion);
+    </script>
+    <style>@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }</style>
+</body>
+</html>
