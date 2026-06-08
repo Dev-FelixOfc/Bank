@@ -14,19 +14,60 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api/users', usersRouter);
 
+app.post('/api/auth/register', (req, res) => {
+    try {
+        const { username, password, email } = req.body;
+        if (!username || !password) {
+            return res.status(400).json({ error: "Nombre de usuario y contrasena requeridos" });
+        }
+        const datos = db.leerDatos();
+        const existe = datos.usuarios.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+        if (existe) {
+            return res.status(400).json({ error: "El nombre de usuario ya existe" });
+        }
+        const nuevoUsuario = {
+            id: Date.now().toString(),
+            username: username.trim(),
+            password: password,
+            email: email ? email.trim() : "",
+            alias: null,
+            balance: 0,
+            rol: "user",
+            avatar: null
+        };
+        datos.usuarios.push(nuevoUsuario);
+        db.guardarDatos(datos);
+        res.json({ mensaje: "Usuario registrado con exito" });
+    } catch (err) {
+        res.status(500).json({ error: "Database error" });
+    }
+});
+
+app.post('/api/auth/login', (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const datos = db.leerDatos();
+        const user = datos.usuarios.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password);
+        if (!user) {
+            return res.status(400).json({ error: "Credenciales invalidas" });
+        }
+        const jwt = require('jsonwebtoken');
+        const token = jwt.sign({ id: user.id }, 'KazumaEcosystemSecretKey2026', { expiresIn: '24h' });
+        res.json({ token, user: { username: user.username, rol: user.rol } });
+    } catch (err) {
+        res.status(500).json({ error: "Error en el inicio de sesion" });
+    }
+});
+
 app.get('/api/public/profile/:alias', (req, res) => {
     try {
         const datos = db.leerDatos();
         const aliasBuscado = req.params.alias.toLowerCase();
-        
         const user = datos.usuarios.find(u => u.alias && u.alias.toLowerCase() === aliasBuscado);
-        
         if (!user) {
             return res.status(404).json({ error: "Este alias no pertenece a ningun miembro de Kazuma Ecosystem" });
         }
-
         const totalTarjetas = datos.tarjetas ? datos.tarjetas.filter(t => t.user_id === user.id).length : 0;
-
         res.json({
             username: user.username,
             alias: user.alias,
