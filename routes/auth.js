@@ -6,10 +6,10 @@ const db = require('../database');
 const { JWT_SECRET } = require('../middleware/auth');
 
 router.post('/register', (req, res) => {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
     const hashedPassword = bcrypt.hashSync(password, 8);
 
-    db.run(`INSERT INTO usuarios (username, password) VALUES (?, ?)`, [username, hashedPassword], function(err) {
+    db.run(`INSERT INTO usuarios (username, email, password) VALUES (?, ?, ?)`, [username, email, hashedPassword], function(err) {
         if (err) return res.status(400).json({ error: "Username exists" });
         res.status(201).json({ mensaje: "Registered", userId: this.lastID });
     });
@@ -20,7 +20,7 @@ router.post('/login', (req, res) => {
 
     db.get(`SELECT * FROM usuarios WHERE username = ?`, [username], (err, user) => {
         if (err || !user) return res.status(404).json({ error: "Not found" });
-        
+
         const passwordValido = bcrypt.compareSync(password, user.password);
         if (!passwordValido) return res.status(401).json({ error: "Wrong password" });
 
