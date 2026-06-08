@@ -8,12 +8,25 @@ const adminRoutes = require('./routes/admin');
 const db = require('./database');
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
 
+// Middleware para quitar extensiones .html de la URL del navegador de forma agresiva
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html')) {
+        const nuevaRuta = req.path.slice(0, -5);
+        return res.redirect(301, nuevaRuta);
+    }
+    next();
+});
+
+// Servir la carpeta public pero sin indexación automática para controlar las rutas nosotros
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+
+// Rutas de la API
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);
 
+// Ruta especial para perfiles públicos de usuarios (@alias)
 app.get('/@:alias', (req, res) => {
     const aliasBuscar = req.params.alias;
     db.get(`SELECT username, alias, balance FROM usuarios WHERE alias = ? AND perfil_publico = 1`, [aliasBuscar], (err, user) => {
@@ -35,9 +48,20 @@ app.get('/@:alias', (req, res) => {
     });
 });
 
+// Ruta explícita para el Dashboard (Sitio normal tradicional)
+app.get('/dash', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dash.html'));
+});
+
+// Comodín para atrapar el sistema SPA principal (Home, Login, Signup) o mandar al 404
 app.get('*', (req, res) => {
-    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+    const rutasPrincipales = ['/', '/login', '/signup'];
+    if (rutasPrincipales.includes(req.path)) {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    } else {
+        res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+    }
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server Kazuma: ${PORT}`));
+app.listen(PORT, () => console.log(`Server Kazuma listo en puerto: ${PORT}`));
