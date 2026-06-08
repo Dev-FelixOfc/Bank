@@ -1,0 +1,12 @@
+{
+  "name": "Bank Kazuma",
+  "version": "1.0.0",
+  "description": "Backend para el sistema de economia virtual Kazuma",
+  "main": "server.js",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "sqlite3": "^5.1.7"
+  }
+}
