@@ -17,6 +17,19 @@ function middlewareLocal(req, res, next) {
     });
 }
 
+router.get('/', middlewareLocal, (req, res) => {
+    try {
+        const datos = db.leerDatos();
+        if (!datos.tarjetas) {
+            datos.tarjetas = [];
+        }
+        const misTarjetas = datos.tarjetas.filter(t => t.user_id == req.userId);
+        res.json({ tarjetas: misTarjetas, total: misTarjetas.length });
+    } catch (err) {
+        res.status(500).json({ error: "Error al obtener tarjetas: " + err.message });
+    }
+});
+
 router.post('/new', middlewareLocal, (req, res) => {
     try {
         const { nunca_vence, fecha_vence, avatar_tarjeta } = req.body;
@@ -24,15 +37,19 @@ router.post('/new', middlewareLocal, (req, res) => {
 
         const usuario = datos.usuarios.find(u => u.id == req.userId);
         if (!usuario) {
-            return res.status(404).json({ error: "Usuario no encontrado en el ecosistema" });
+            return res.status(404).json({ error: "Usuario no encontrado" });
         }
 
         if (!datos.tarjetas) {
             datos.tarjetas = [];
         }
 
-        const apiKeyRandom = "KZM-" + crypto.randomBytes(8).toString('hex').toUpperCase();
+        const misTarjetas = datos.tarjetas.filter(t => t.user_id == req.userId);
+        if (misTarjetas.length >= 3) {
+            return res.status(400).json({ error: "Alcanzaste el limite maximo de 3 tarjetas creadas" });
+        }
 
+        const apiKeyRandom = "KZM-" + crypto.randomBytes(8).toString('hex').toUpperCase();
         const tresNumeros = Math.floor(100 + Math.random() * 900).toString();
         const uidTarjeta = `224-${tresNumeros}`;
 
@@ -52,7 +69,7 @@ router.post('/new', middlewareLocal, (req, res) => {
 
         res.json({ mensaje: "Tarjeta generada correctamente", tarjeta: nuevaTarjeta });
     } catch (err) {
-        res.status(500).json({ error: "Error del servidor al crear tarjeta: " + err.message });
+        res.status(500).json({ error: "Error al crear tarjeta: " + err.message });
     }
 });
 
