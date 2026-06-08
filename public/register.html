@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - Bank Kazuma</title>
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; position: relative;">
+
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 350px; width: 100%;"></div>
 
     <div style="display: flex; flex-direction: column; min-height: 100vh; justify-content: center; align-items: center; padding: 24px; background: #ffffff;">
         <div style="width: 100%; max-width: 400px; background: #ffffff; padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #f1f3f9;">
@@ -45,6 +47,51 @@
     </div>
 
     <script>
+    function mostrarNotificacion(mensaje, esError = true) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        
+        toast.style.background = esError ? '#fde8e8' : '#eafaf1';
+        toast.style.color = esError ? '#9b1c1c' : '#14532d';
+        toast.style.border = `1px solid ${esError ? '#f8b4b4' : '#84e1bc'}`;
+        toast.style.padding = '16px 20px';
+        toast.style.borderRadius = '12px';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+        toast.style.display = 'flex';
+        toast.style.justifyContent = 'space-between';
+        toast.style.alignItems = 'center';
+        toast.style.fontSize = '14px';
+        toast.style.fontWeight = '600';
+        toast.style.animation = 'fadeIn 0.3s ease forwards';
+        
+        const texto = document.createElement('span');
+        texto.innerText = mensaje;
+        toast.appendChild(texto);
+        
+        const botonCerrar = document.createElement('button');
+        botonCerrar.innerText = '✕';
+        botonCerrar.style.background = 'none';
+        botonCerrar.style.border = 'none';
+        botonCerrar.style.color = esError ? '#9b1c1c' : '#14532d';
+        botonCerrar.style.cursor = 'pointer';
+        botonCerrar.style.marginLeft = '12px';
+        botonCerrar.style.fontSize = '16px';
+        botonCerrar.style.fontWeight = '700';
+        
+        botonCerrar.onclick = () => {
+            toast.remove();
+        };
+        
+        toast.appendChild(botonCerrar);
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 5000);
+    }
+
     function registrarUsuario() {
         const u = document.getElementById('reg-username').value;
         const e = document.getElementById('reg-email').value;
@@ -59,14 +106,25 @@
         .then(r => r.json())
         .then(data => {
             if(data.error) {
-                alert(data.error);
+                mostrarNotificacion(data.error, true);
             } else {
-                alert("¡Registro completado con éxito!");
-                window.location.href = '/login';
+                mostrarNotificacion("¡Registro completado con éxito!", false);
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
             }
         })
-        .catch(err => console.error(err));
+        .catch(() => {
+            mostrarNotificacion("Error de conexión con el servidor central.", true);
+        });
     }
     </script>
+
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </body>
 </html>
