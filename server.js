@@ -1,63 +1,29 @@
 const express = require('express');
 const path = require('path');
-const cors = require('cors');
-const db = require('./database');
-const usersRouter = require('./routes/users');
-
+const readline = require('readline');
+const bcrypt = require('bcryptjs');
 const app = express();
-const PORT = 8080;
 
-app.use(cors());
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const adminRoutes = require('./routes/admin');
+const db = require('./database');
+
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/users', usersRouter);
-
-app.post('/api/auth/register', (req, res) => {
-    try {
-        const { username, password, email } = req.body;
-        if (!username || !password) {
-            return res.status(400).json({ error: "Nombre de usuario y contrasena requeridos" });
-        }
-        const datos = db.leerDatos();
-        const existe = datos.usuarios.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
-        if (existe) {
-            return res.status(400).json({ error: "El nombre de usuario ya existe" });
-        }
-        const nuevoUsuario = {
-            id: Date.now().toString(),
-            username: username.trim(),
-            password: password,
-            email: email ? email.trim() : "",
-            alias: null,
-            balance: 0,
-            rol: "user",
-            avatar: null
-        };
-        datos.usuarios.push(nuevoUsuario);
-        db.guardarDatos(datos);
-        res.json({ mensaje: "Usuario registrado con exito" });
-    } catch (err) {
-        res.status(500).json({ error: "Database error" });
+app.use((req, res, next) => {
+    if (req.path.endsWith('.html')) {
+        const nuevaRuta = req.path.slice(0, -5);
+        return res.redirect(301, nuevaRuta);
     }
+    next();
 });
 
-app.post('/api/auth/login', (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const datos = db.leerDatos();
-        const user = datos.usuarios.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password);
-        if (!user) {
-            return res.status(400).json({ error: "Credenciales invalidas" });
-        }
-        const jwt = require('jsonwebtoken');
-        const token = jwt.sign({ id: user.id }, 'KazumaEcosystemSecretKey2026', { expiresIn: '24h' });
-        res.json({ token, user: { username: user.username, rol: user.rol } });
-    } catch (err) {
-        res.status(500).json({ error: "Error en el inicio de sesion" });
-    }
-});
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
+
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/public/profile/:alias', (req, res) => {
     try {
@@ -85,25 +51,64 @@ app.get('/@:alias', (req, res) => {
 });
 
 app.get('/dash', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
-});
-
-app.get('/profile', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'profile.html'));
-});
-
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/register', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'register.html'));
+    res.sendFile(path.join(__dirname, 'public', 'dash.html'));
 });
 
 app.get('*', (req, res) => {
-    res.redirect('/login');
+    const rutasPrincipales = ['/', '/login', '/signup'];
+    if (rutasPrincipales.includes(req.path)) {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    } else {
+        res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+    }
 });
 
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log('Server Kazuma operativo en puerto: ' + PORT);
+    console.log(`Server Kazuma operativo en puerto: ${PORT}`);
+    iniciarConsolaInteractiva();
 });
+
+function iniciarConsolaInteractiva() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    rl.on('line', (linea) => {
+        if (linea.trim() === 'p:user/create') {
+            rl.question('Ingrese Correo: ', (email) => {
+                rl.question('Ingrese Usuario: ', (username) => {
+                    rl.question('Ingrese Contrasena: ', (password) => {
+                        try {
+                            const datos = db.leerDatos();
+                            const existeU = datos.usuarios.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+                            const existeE = datos.usuarios.find(u => u.email && u.email.toLowerCase() === email.trim().toLowerCase());
+                            if (existeU || existeE) {
+                                console.log('Error: El usuario o correo ya existe en la Base de Datos.');
+                            } else {
+                                const hashedPassword = bcrypt.hashSync(password, 8);
+                                const nuevoAdmin = {
+                                    id: Date.now(),
+                                    username: username.trim(),
+                                    email: email.trim(),
+                                    password: hashedPassword,
+                                    alias: null,
+                                    perfil_publico: 0,
+                                    rol: 'admin',
+                                    balance: 0.0,
+                                    avatar: null
+                                };
+                                datos.usuarios.push(nuevoAdmin);
+                                db.guardarDatos(datos);
+                                console.log(`¡Exito! El administrador [${username}] ha sido creado correctamente.`);
+                            }
+                        } catch (err) {
+                            console.log('Error al procesar el archivo JSON en consola.');
+                        }
+                    });
+                });
+            });
+        }
+    });
+}
