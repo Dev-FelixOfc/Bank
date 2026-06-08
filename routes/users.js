@@ -81,25 +81,28 @@ router.post('/profile/update', middlewareLocal, (req, res) => {
             return res.status(401).json({ error: "La contrasena actual es incorrecta" });
         }
 
-        if (username && username.toLowerCase() !== usuarioActual.username.toLowerCase()) {
-            const userExiste = datos.usuarios.find(u => u.username.toLowerCase() === username.toLowerCase());
+        if (username && username.trim().toLowerCase() !== usuarioActual.username.toLowerCase()) {
+            const userExiste = datos.usuarios.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
             if (userExiste) return res.status(400).json({ error: "El nombre de usuario ya esta en uso" });
-            usuarioActual.username = username;
+            usuarioActual.username = username.trim();
         }
 
-        if (email && email.toLowerCase() !== (usuarioActual.email || '').toLowerCase()) {
-            const emailExiste = datos.usuarios.find(u => (u.email || '').toLowerCase() === email.toLowerCase());
+        if (email && email.trim().toLowerCase() !== (usuarioActual.email || '').toLowerCase()) {
+            const emailExiste = datos.usuarios.find(u => (u.email || '').toLowerCase() === email.trim().toLowerCase());
             if (emailExiste) return res.status(400).json({ error: "El correo electronico ya esta registrado" });
-            usuarioActual.email = email;
+            usuarioActual.email = email.trim();
         }
 
-        if (alias && alias.toLowerCase() !== (usuarioActual.alias || '').toLowerCase()) {
-            if (alias.includes('@') || alias.includes('#')) {
+        if (alias && alias.trim().toLowerCase() !== (usuarioActual.alias || '').toLowerCase()) {
+            const limpio = alias.trim();
+            if (limpio.includes('@') || limpio.includes('#')) {
                 return res.status(400).json({ error: "El alias no puede contener @ ni #" });
             }
-            const aliasExiste = datos.usuarios.find(u => (u.alias || '').toLowerCase() === alias.toLowerCase());
+            const aliasExiste = datos.usuarios.find(u => (u.alias || '').toLowerCase() === limpio.toLowerCase());
             if (aliasExiste) return res.status(400).json({ error: "El alias ya esta siendo utilizado" });
-            usuarioActual.alias = alias;
+            usuarioActual.alias = limpio;
+        } else if (alias === "") {
+            usuarioActual.alias = null;
         }
 
         if (passwordNew && passwordNew.trim() !== "") {
