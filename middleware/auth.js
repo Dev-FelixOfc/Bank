@@ -21,7 +21,7 @@ function verificarToken(req, res, next) {
     });
 }
 
-module.exports = {
-    verificarToken,
-    JWT_SECRET
-};
+verificarToken.verificarToken = verificarToken;
+verificarToken.JWT_SECRET = JWT_SECRET;
+
+module.exports = verificarToken;
