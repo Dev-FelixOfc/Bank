@@ -56,6 +56,10 @@ app.get('/dash', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'dash.html'));
 });
 
+app.get('/cards', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'manage-cards.html'));
+});
+
 app.get('/create-card', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'create-card.html'));
 });
