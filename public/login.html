@@ -32,7 +32,6 @@
 
 <script>
 (function verificarSesionActiva() {
-    // Si el token existe, pintamos todo de negro y redirigimos de inmediato
     if (localStorage.getItem('token_kazuma')) {
         const contenedor = document.getElementById('login-container');
         if (contenedor) {
@@ -59,10 +58,9 @@ function loguearUsuario() {
             alert(data.error);
         } else {
             localStorage.setItem('token_kazuma', data.token);
-            // Redirección tradicional de navegador al sitio normal
             window.location.href = '/dash';
         }
     })
-    .catch(e => console.error(e));
+    .catch(err => console.error(err));
 }
 </script>
