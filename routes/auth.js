@@ -46,12 +46,12 @@ router.post('/login', (req, res) => {
 
         const user = datos.usuarios.find(u => u.username.toLowerCase() === username.toLowerCase());
         if (!user) {
-            return res.status(444).json({ error: "Not found" });
+            return res.status(444).json({ error: "Usuario no encontrado" });
         }
 
         const passwordValido = bcrypt.compareSync(password, user.password);
         if (!passwordValido) {
-            return res.status(401).json({ error: "Wrong password" });
+            return res.status(401).json({ error: "Contrasena incorrecta" });
         }
 
         const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '24h' });
