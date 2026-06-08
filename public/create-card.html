@@ -14,10 +14,47 @@
         .box { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 24px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
         h1 { font-size: 24px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; }
         p { color: #666666; font-size: 14px; margin-bottom: 32px; line-height: 1.5; }
-        .visual-card { background: linear-gradient(135deg, #111111 0%, #333333 100%); color: #ffffff; padding: 30px; border-radius: 20px; margin-bottom: 32px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); position: relative; overflow: hidden; }
-        .card-brand { font-size: 18px; font-weight: 800; text-align: right; color: #f3ebff; }
-        .card-number { font-size: 22px; font-weight: 700; letter-spacing: 3px; margin: 30px 0 15px 0; font-family: monospace; }
-        .card-holder { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #b3b3b3; }
+        
+        .visual-card { 
+            background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); 
+            color: #111111; 
+            padding: 25px; 
+            border-radius: 20px; 
+            margin-bottom: 32px; 
+            box-shadow: 0 12px 24px rgba(179, 135, 40, 0.25); 
+            position: relative; 
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.4);
+            text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+        }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-brand { font-size: 18px; font-weight: 800; color: #111111; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .card-avatar { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 8px; 
+            object-fit: cover; 
+            border: 2px solid #111111;
+            background: #ffffff;
+        }
+        
+        .card-number { font-size: 20px; font-weight: 700; letter-spacing: 2px; margin: 25px 0 15px 0; font-family: monospace; word-break: break-all; }
+        
+        .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+        .card-holder { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #111111; }
+        .card-meta { display: flex; gap: 20px; text-align: left; }
+        .meta-label { font-size: 9px; text-transform: uppercase; color: #333333; font-weight: 600; display: block; }
+        .meta-value { font-size: 12px; font-weight: 700; font-family: monospace; }
+
+        .form-group { margin-bottom: 24px; text-align: left; }
+        .form-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #333333; }
+        .form-control { width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid #e1e5ee; font-size: 15px; outline: none; background: #fdfdfd; }
+        .form-control:focus { border-color: #6f42c1; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .checkbox-group input { width: 16px; height: 16px; cursor: pointer; }
+        .checkbox-group label { margin-bottom: 0; font-weight: 600; cursor: pointer; font-size: 13px; color: #666666; }
+
         .btn-submit { background: #6f42c1; color: #ffffff; border: none; padding: 16px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; width: 100%; box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2); transition: background 0.2s; }
         .btn-submit:hover { background: #5a32a3; }
         .link-back { display: block; text-align: center; margin-top: 20px; font-size: 14px; color: #999999; cursor: pointer; text-decoration: none; }
@@ -34,12 +71,39 @@
     <div class="container">
         <div class="box">
             <h1>Generar Tarjeta Virtual</h1>
-            <p>Obtén una tarjeta digital en segundos vinculada a tu cuenta. Úsala para pagar servicios e integrarla vía API en las plataformas del ecosistema.</p>
+            <p>Obtén una tarjeta digital dorada vinculada a tu cuenta. Úsala para pagar servicios e integrarla vía API en las plataformas del ecosistema.</p>
             
             <div class="visual-card">
-                <div class="card-brand">Kazuma Card</div>
-                <div class="card-number">•••• •••• •••• ••••</div>
-                <div class="card-holder" id="lblHolder">Cargando Usuario...</div>
+                <div class="card-top">
+                    <div class="card-brand">Kazuma Card</div>
+                    <img src="https://via.placeholder.com/150" id="cardAvatar" class="card-avatar" alt="Avatar">
+                </div>
+                <div class="card-number" id="lblNumber">KZM-••••••••••••••••</div>
+                <div class="card-bottom">
+                    <div>
+                        <span class="meta-label">Titular de la tarjeta</span>
+                        <div class="card-holder" id="lblHolder">Cargando Usuario...</div>
+                    </div>
+                    <div class="card-meta">
+                        <div>
+                            <span class="meta-label">UID</span>
+                            <span class="meta-value" id="lblUid">224-•••</span>
+                        </div>
+                        <div>
+                            <span class="meta-label">Vence</span>
+                            <span class="meta-value" id="lblExp">MM/AA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="expDate">Fecha de Vencimiento</label>
+                <input type="month" id="expDate" class="form-control" onchange="actualizarFechaVista()">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="neverExpire" onchange="toggleNeverExpire()">
+                    <label for="neverExpire">Esta tarjeta no se borra nunca (Sin vencimiento)</label>
+                </div>
             </div>
 
             <button class="btn-submit" onclick="solicitarNuevaTarjeta()">Generar Plástico Digital</button>
@@ -48,6 +112,8 @@
     </div>
 
     <script>
+        let userAvatarUrl = "https://via.placeholder.com/150";
+
         function mostrarNotificacion(mensaje, esError = true) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -84,6 +150,27 @@
             setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
         }
 
+        function toggleNeverExpire() {
+            const chk = document.getElementById('neverExpire');
+            const inputDate = document.getElementById('expDate');
+            if (chk.checked) {
+                inputDate.disabled = true;
+                inputDate.value = "";
+                document.getElementById('lblExp').innerText = "NUNCA";
+            } else {
+                inputDate.disabled = false;
+                document.getElementById('lblExp').innerText = "MM/AA";
+            }
+        }
+
+        function actualizarFechaVista() {
+            const inputDate = document.getElementById('expDate').value;
+            if (inputDate) {
+                const [ano, mes] = inputDate.split('-');
+                document.getElementById('lblExp').innerText = `${mes}/${ano.slice(-2)}`;
+            }
+        }
+
         function verificarSesion() {
             const token = localStorage.getItem('token_kazuma');
             if (!token) { window.location.href = '/login'; return; }
@@ -95,6 +182,10 @@
             .then(data => {
                 if(data.username) {
                     document.getElementById('lblHolder').innerText = data.username;
+                    if (data.avatar) {
+                        userAvatarUrl = data.avatar;
+                        document.getElementById('cardAvatar').src = data.avatar;
+                    }
                 }
             })
             .catch(() => window.location.href = '/login');
@@ -102,19 +193,32 @@
 
         function solicitarNuevaTarjeta() {
             const token = localStorage.getItem('token_kazuma');
+            const neverExpire = document.getElementById('neverExpire').checked;
+            const expDateValue = document.getElementById('expDate').value;
+
+            if (!neverExpire && !expDateValue) {
+                mostrarNotificacion("Por favor selecciona una fecha de vencimiento o marca la opción 'Nunca'.", true);
+                return;
+            }
+
             fetch('/api/cards/new', {
                 method: 'POST',
                 headers: { 
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    nunca_vence: neverExpire,
+                    fecha_vence: neverExpire ? "NUNCA" : expDateValue,
+                    avatar_tarjeta: userAvatarUrl
+                })
             })
             .then(res => res.json())
             .then(data => {
                 if (data.error) {
                     mostrarNotificacion(data.error, true);
                 } else {
-                    mostrarNotificacion("¡Tarjeta virtual creada con éxito!", false);
+                    mostrarNotificacion("¡Tarjeta dorada creada con éxito!", false);
                     setTimeout(() => { window.location.href = '/dash'; }, 1500);
                 }
             })
