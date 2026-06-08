@@ -1,4 +1,4 @@
-<div style="display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between; padding: 24px;">
+<div style="display: flex; flex-direction: column; min-height: 100vh; justify-content: space-between; padding: 24px; background: #ffffff;">
     
     <header style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; width: 100%; margin: 0 auto; padding: 10px 0;">
         <div style="font-size: 24px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px;">Bank <span style="color: #111111;">Kazuma</span></div>
@@ -15,15 +15,15 @@
         </h1>
         
         <p style="font-size: 17px; color: #666666; line-height: 1.6; margin-bottom: 40px;">
-            Realiza misiones en nuestros sitios asociados, genera ingresos directamente a tu cuenta y gástalo de inmediato usando tu tarjeta virtual personalizada.
+            Gestiona tu dinero en un solo lugar, paga y recibe dinero de manera sencilla sin tener que registrar tarjetas reales ni usar dinero real.
         </p>
 
-        <div style="display: flex; gap: 16px; width: 100%; justify-content: center; flex-wrap: wrap;">
-            <button onclick="alert('Redirigiendo a registro...')" style="background: #6f42c1; color: #ffffff; border: none; padding: 16px 32px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2); min-width: 180px;">
-                Crear Cuenta
+        <div style="display: flex; flex-direction: column; gap: 14px; width: 100%; max-width: 320px; justify-content: center;">
+            <button onclick="cargarVista('/register.html')" style="background: #6f42c1; color: #ffffff; border: none; padding: 16px 32px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 12px rgba(111, 66, 193, 0.2); width: 100%;">
+                Comenzar
             </button>
-            <button onclick="alert('Redirigiendo a login...')" style="background: #ffffff; color: #6f42c1; border: 2px solid #6f42c1; padding: 16px 32px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: background 0.2s; min-width: 180px;">
-                Banca en Línea
+            <button onclick="cargarVista('/login.html')" style="background: #ffffff; color: #6f42c1; border: 2px solid #6f42c1; padding: 14px 32px; font-size: 16px; font-weight: 600; border-radius: 12px; cursor: pointer; transition: background 0.2s; width: 100%;">
+                Iniciar Sesión
             </button>
         </div>
     </main>
