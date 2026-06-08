@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Kazuma</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+        #app-viewport {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-viewport"></div>
+
+    <script>
+        function cargarVista(vista) {
+            fetch(vista)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('app-viewport').innerHTML = html;
+                })
+                .catch(err => console.error("Error al cargar la interfaz:", err));
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            cargarVista('/home.html');
+        });
+    </script>
+</body>
+</html>
