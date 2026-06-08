@@ -17,7 +17,9 @@ app.use('/api/admin', adminRoutes);
 app.get('/@:alias', (req, res) => {
     const aliasBuscar = req.params.alias;
     db.get(`SELECT username, alias, balance FROM usuarios WHERE alias = ? AND perfil_publico = 1`, [aliasBuscar], (err, user) => {
-        if (err || !user) return res.status(404).send("Perfil privado o no encontrado.");
+        if (err || !user) {
+            return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+        }
         res.send(`
             <div style="font-family: 'Segoe UI', sans-serif; text-align: center; padding: 50px; background: #f8f9fa; min-height: 100vh;">
                 <div style="background: white; max-width: 400px; margin: auto; padding: 30px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
@@ -34,7 +36,7 @@ app.get('/@:alias', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
 const PORT = process.env.PORT || 8080;
