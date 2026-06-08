@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Bank Kazuma</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+            background: #f8f9fa;
+            color: #111111;
+            min-height: 100vh;
+        }
+        .navbar {
+            background: #ffffff;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e1e5ee;
+            position: relative;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #6f42c1;
+            letter-spacing: -0.5px;
+        }
+        .logo span {
+            color: #111111;
+        }
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6f42c1;
+            display: block;
+        }
+        .nav-menu {
+            position: absolute;
+            top: 100%;
+            right: 24px;
+            background: #ffffff;
+            border: 1px solid #e1e5ee;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 220px;
+            display: none;
+            flex-direction: column;
+            padding: 8px 0;
+        }
+        .nav-menu.active {
+            display: flex;
+        }
+        .nav-item {
+            padding: 12px 20px;
+            color: #333333;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .nav-item:hover {
+            background: #f3ebff;
+            color: #6f42c1;
+        }
+        .admin-option {
+            border-top: 1px solid #e1e5ee;
+            color: #dc3545;
+            display: none;
+        }
+        .admin-option:hover {
+            background: #fdf2f2;
+            color: #dc3545;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+        .welcome-section {
+            margin-bottom: 32px;
+        }
+        .welcome-section h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 4px;
+        }
+        .welcome-section p {
+            color: #666666;
+            font-size: 15px;
+        }
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .card {
+            background: #ffffff;
+            border: 1px solid #e1e5ee;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
+        }
+        .card-balance {
+            background: linear-gradient(135deg, #6f42c1 0%, #492787 100%);
+            color: #ffffff;
+            border: none;
+        }
+        .card-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #e1e5ee;
+        }
+        .card-balance .card-title {
+            color: #f3ebff;
+        }
+        .balance-value {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .card-info-text {
+            font-size: 14px;
+            color: #f3ebff;
+            opacity: 0.9;
+        }
+        .normal-card .card-title {
+            color: #666666;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111111;
+            margin-bottom: 6px;
+        }
+        .stat-desc {
+            font-size: 14px;
+            color: #666666;
+            line-height: 1.4;
+        }
+        .btn-action {
+            background: #6f42c1;
+            color: #ffffff;
+            border: none;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 14px;
+            transition: background 0.2s;
+        }
+        .btn-action:hover {
+            background: #5a32a3;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">Bank <span>Kazuma</span></div>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <div class="nav-menu" id="menuDropdown">
+            <div class="nav-item" onclick="window.location.href='/profile'">Editar Perfil</div>
+            <div class="nav-item" onclick="window.location.href='/create-card'">Crear Tarjeta</div>
+            <div class="nav-item" id="btnPublicProfile" onclick="irAPerfilPublico()">Ver Perfil Público</div>
+            <div class="nav-item admin-option" id="btnAdminPanel" onclick="window.location.href='/admin'">Panel Admin</div>
+            <div class="nav-item" style="color: #dc3545; border-top: 1px solid #e1e5ee;" onclick="cerrarSesion()">Cerrar Sesión</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h1 id="txtWelcome">Cargando panel...</h1>
+            <p>Monitoreo en tiempo real de tus fondos y credenciales virtuales.</p>
+        </div>
+
+        <div class="grid-cards">
+            <div class="card card-balance">
+                <div class="card-title">Balance Total Disponible</div>
+                <div class="balance-value" id="numBalance">$0.00</div>
+                <div class="card-info-text" id="txtCardType">Ecosistema Centralizado</div>
+            </div>
+
+            <div class="card normal-card">
+                <div class="card-title">Tarjetas Asociadas</div>
+                <div class="stat-value" id="numCards">0 / 1</div>
+                <div class="stat-desc">Genera plásticos virtuales dinámicos para integrarlos mediante nuestra API a tus tiendas del ecosistema.</div>
+                <button class="btn-action" onclick="window.location.href='/create-card'">Gestionar Tarjetas</button>
+            </div>
+
+            <div class="card normal-card">
+                <div class="card-title">Identidad Digital</div>
+                <div class="stat-value" id="txtAlias">Sin Alias</div>
+                <div class="stat-desc">Configura tu alias único para recibir pagos de otros usuarios de forma inmediata mediante rutas rápidas.</div>
+                <button class="btn-action" onclick="window.location.href='/profile'">Configurar Cuenta</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let usuarioDatos = null;
+
+        function verificarAutenticacion() {
+            const token = localStorage.getItem('token_kazuma');
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            fetch('/api/users/me', {
+                method: 'GET',
+                headers: { 
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return res.json();
+            })
+            .then(data => {
+                usuarioDatos = data;
+                document.getElementById('txtWelcome').innerText = `¡Hola, ${data.username}!`;
+                document.getElementById('numBalance').innerText = `$${data.balance.toFixed(2)}`;
+                document.getElementById('txtAlias').innerText = data.alias ? `@${data.alias}` : 'No configurado';
+                
+                if (data.cardsCount) {
+                    document.getElementById('numCards').innerText = `${data.cardsCount} / 3`;
+                }
+
+                if (data.rol === 'admin') {
+                    document.getElementById('btnAdminPanel').style.display = 'block';
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('token_kazuma');
+                window.location.href = '/login';
+            });
+        }
+
+        function toggleMenu() {
+            document.getElementById('menuDropdown').classList.toggle('active');
+        }
+
+        function irAPerfilPublico() {
+            if (usuarioDatos && usuarioDatos.alias) {
+                window.location.href = `/@${usuarioDatos.alias}`;
+            } else {
+                alert('Primero debes configurar un alias en tu perfil para tener una dirección pública.');
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.removeItem('token_kazuma');
+            window.location.href = '/login';
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.menu-toggle')) {
+                const dropdown = document.getElementById('menuDropdown');
+                if (dropdown.classList.contains('active')) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', verificarAutenticacion);
+    </script>
+</body>
+</html>
