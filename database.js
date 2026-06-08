@@ -5,6 +5,7 @@ db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS usuarios (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
+        email TEXT UNIQUE,
         password TEXT,
         alias TEXT UNIQUE,
         perfil_publico INTEGER DEFAULT 0,
