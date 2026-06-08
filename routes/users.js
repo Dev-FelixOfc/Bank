@@ -1,4 +1,49 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../database');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const JWT_SECRET = 'KazumaEcosystemSecretKey2026';
+
+function middlewareLocal(req, res, next) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.status(401).json({ error: 'No token' });
+    
+    const token = authHeader.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Format error' });
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+        if (err) return res.status(403).json({ error: 'Expired token' });
+        req.userId = decoded.id;
+        next();
+    });
+}
+
+router.get('/me', middlewareLocal, (req, res) => {
+    try {
+        const datos = db.leerDatos();
+        const user = datos.usuarios.find(u => u.id === req.userId);
+
+        if (!user) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        const tarjetasUsuario = datos.tarjetas ? datos.tarjetas.filter(t => t.user_id === user.id) : [];
+
+        res.json({
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            alias: user.alias,
+            rol: user.rol,
+            balance: user.balance,
+            avatar: user.avatar || null,
+            cardsCount: tarjetasUsuario.length
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Error en servidor: " + err.message });
+    }
+});
 
 router.post('/profile/avatar', middlewareLocal, (req, res) => {
     try {
@@ -69,3 +114,5 @@ router.post('/profile/update', middlewareLocal, (req, res) => {
         res.status(500).json({ error: "Error interno: " + err.message });
     }
 });
+
+module.exports = router;
