@@ -7,11 +7,16 @@ const { JWT_SECRET } = require('../middleware/auth');
 
 router.post('/register', (req, res) => {
     const { username, email, password } = req.body;
-    const hashedPassword = bcrypt.hashSync(password, 8);
+    
+    db.get(`SELECT id FROM usuarios WHERE username = ? OR email = ?`, [username, email], (err, row) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        if (row) return res.status(400).json({ error: "El usuario o correo ya se encuentra registrado" });
 
-    db.run(`INSERT INTO usuarios (username, email, password) VALUES (?, ?, ?)`, [username, email, hashedPassword], function(err) {
-        if (err) return res.status(400).json({ error: "Username exists" });
-        res.status(201).json({ mensaje: "Registered", userId: this.lastID });
+        const hashedPassword = bcrypt.hashSync(password, 8);
+        db.run(`INSERT INTO usuarios (username, email, password) VALUES (?, ?, ?)`, [username, email, hashedPassword], function(insertErr) {
+            if (insertErr) return res.status(400).json({ error: "Registration failed" });
+            res.status(201).json({ mensaje: "Registered", userId: this.lastID });
+        });
     });
 });
 
