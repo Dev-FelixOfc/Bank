@@ -169,10 +169,18 @@
         function subirAvatarServidor(input) {
             if (!input.files || !input.files[0]) return;
             
-            const formData = new FormData();
-            formData.append('file', input.files[0]);
+            const archivoOriginal = input.files[0];
+            const mime = archivoOriginal.type;
+            const ext = mime.split("/")[1] || "bin";
+            
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            let id = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+            const filename = `${id}.${ext}`;
 
-            mostrarNotificacion("Subiendo imagen al host remoto...", false);
+            const formData = new FormData();
+            formData.append('file', archivoOriginal, filename);
+
+            mostrarNotificacion("Subiendo imagen a Yotsuba Host...", false);
 
             fetch('https://upload.yotsuba.giize.com/upload', {
                 method: 'POST',
@@ -182,12 +190,14 @@
             .then(data => {
                 if (data.url) {
                     actualizarAvatarEnBD(data.url);
+                } else if (data.data && data.data.url) {
+                    actualizarAvatarEnBD(data.data.url);
                 } else {
-                    mostrarNotificacion("El host remoto no retorno una URL valida.", true);
+                    mostrarNotificacion("Yotsuba no devolvio una URL reconocible.", true);
                 }
             })
             .catch(() => {
-                mostrarNotificacion("Error al conectar con upload.yotsuba.giize.com", true);
+                mostrarNotificacion("Error de red al conectar con upload.yotsuba.giize.com", true);
             });
         }
 
@@ -235,7 +245,7 @@
             }
 
             const regex = /^[a-zA-Z0-9_ -]*$/;
-            if (!regex.test(alias)) {
+            if (alias !== "" && !regex.test(alias)) {
                 mostrarNotificacion("El alias contiene caracteres especiales invalidos.", true);
                 return;
             }
