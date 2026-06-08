@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const readline = require('readline');
+const bcrypt = require('bcryptjs');
 const app = express();
 
 const authRoutes = require('./routes/auth');
@@ -58,4 +60,37 @@ app.get('*', (req, res) => {
 });
 
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server Kazuma operativo en puerto: ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`Server Kazuma operativo en puerto: ${PORT}`);
+    iniciarConsolaInteractiva();
+});
+
+function iniciarConsolaInteractiva() {
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    rl.on('line', (linea) => {
+        if (linea.trim() === 'p:user/create') {
+            rl.question('Ingrese Correo: ', (email) => {
+                rl.question('Ingrese Usuario: ', (username) => {
+                    rl.question('Ingrese Contrasena: ', (password) => {
+                        const hashedPassword = bcrypt.hashSync(password, 8);
+                        db.run(
+                            `INSERT INTO usuarios (username, email, password, rol) VALUES (?, ?, ?, 'admin')`,
+                            [username, email, hashedPassword],
+                            (err) => {
+                                if (err) {
+                                    console.log('Error: El usuario o correo ya existe en la Base de Datos.');
+                                } else {
+                                    console.log(`¡Exito! El administrador [${username}] ha sido creado correctamente.`);
+                                }
+                            }
+                        );
+                    });
+                });
+            });
+        }
+    });
+}
