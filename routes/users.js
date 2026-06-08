@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const db = require('../database');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
 const JWT_SECRET = 'KazumaEcosystemSecretKey2026';
 
 function middlewareLocal(req, res, next) {
@@ -66,7 +65,7 @@ router.post('/profile/avatar', middlewareLocal, (req, res) => {
 
 router.post('/profile/update', middlewareLocal, (req, res) => {
     try {
-        const { username, email, alias, passwordCurr, passwordNew } = req.body;
+        const { username, email, alias } = req.body;
         const datos = db.leerDatos();
         
         const userIndex = datos.usuarios.findIndex(u => u.id === req.userId);
@@ -75,11 +74,6 @@ router.post('/profile/update', middlewareLocal, (req, res) => {
         }
 
         const usuarioActual = datos.usuarios[userIndex];
-
-        const passwordValido = bcrypt.compareSync(passwordCurr, usuarioActual.password);
-        if (!passwordValido) {
-            return res.status(401).json({ error: "La contrasena actual es incorrecta" });
-        }
 
         if (username && username.trim().toLowerCase() !== usuarioActual.username.toLowerCase()) {
             const userExiste = datos.usuarios.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
@@ -103,10 +97,6 @@ router.post('/profile/update', middlewareLocal, (req, res) => {
             usuarioActual.alias = limpio;
         } else if (alias === "") {
             usuarioActual.alias = null;
-        }
-
-        if (passwordNew && passwordNew.trim() !== "") {
-            usuarioActual.password = bcrypt.hashSync(passwordNew, 8);
         }
 
         datos.usuarios[userIndex] = usuarioActual;
