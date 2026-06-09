@@ -103,9 +103,9 @@
 
     async function guardarBalance() {
         const uid = document.getElementById('editUid').value;
-        const amount = parseFloat(document.getElementById('editBalance').value);
+        const rawAmount = parseFloat(document.getElementById('editBalance').value);
         const action = document.getElementById('editAction').value;
-        const finalAmount = action === 'restar' ? -amount : amount;
+        const finalAmount = action === 'restar' ? -Math.abs(rawAmount) : Math.abs(rawAmount);
 
         const res = await fetch('/api/admin/card/balance', {
             method: 'POST',
