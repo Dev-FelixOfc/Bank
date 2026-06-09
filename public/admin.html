@@ -2,80 +2,95 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Bank Kazuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
+        .container { max-width: 900px; width: 100%; margin: 40px auto; padding: 0 24px; }
         
-        .admin-container { max-width: 900px; margin: 40px auto; padding: 24px; }
-        .card-box { background: white; border: 1px solid #e1e5ee; border-radius: 20px; padding: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .header-panel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .header-panel h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+
+        .search-input { width: 100%; padding: 16px; border: 1px solid #e1e5ee; border-radius: 16px; margin-bottom: 24px; font-size: 16px; }
         
-        #searchBar { width: 100%; padding: 14px; border: 1px solid #e1e5ee; border-radius: 12px; margin-bottom: 20px; }
-        .user-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #f1f1f1; }
+        .user-card { background: #ffffff; border: 1px solid #e1e5ee; padding: 20px; border-radius: 20px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .user-info { font-weight: 600; }
         
-        .btn-action { background: #6f42c1; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; margin-left: 8px; }
-        .lock-icon { color: #dc3545; font-size: 20px; }
-        
-        /* Modales */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; }
-        .modal-content { background: white; padding: 24px; border-radius: 20px; width: 90%; max-width: 400px; }
-        input[type="number"] { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; }
+        .actions { display: flex; gap: 12px; }
+        .icon-btn { cursor: pointer; font-size: 18px; color: #6f42c1; padding: 10px; border-radius: 12px; transition: background 0.2s; }
+        .icon-btn:hover { background: #f3ebff; }
+        .lock-icon { color: #111111; cursor: default; }
+
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 24px; border-radius: 20px; width: 90%; max-width: 350px; }
+        .modal-content input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #e1e5ee; border-radius: 10px; }
+        .btn-action { background: #6f42c1; color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 600; }
     </style>
 </head>
 <body>
 
-<div class="admin-container" id="adminPanel" style="display:none;">
-    <h1>Panel de Administración</h1>
-    <div class="card-box">
-        <input type="text" id="searchBar" placeholder="Buscar por email..." onkeyup="filtrar()">
-        <div id="userList"></div>
-    </div>
-</div>
-
-<!-- Modal Tarjetas -->
-<div class="modal" id="cardModal">
-    <div class="modal-content">
-        <h3>Gestionar Tarjeta</h3>
-        <input type="number" id="montoInput" placeholder="Monto (solo números)">
-        <button class="btn-action" onclick="guardarBalance()">Guardar Cambios</button>
-        <button class="btn-action" style="background:#dc3545" onclick="eliminarTarjeta()">Eliminar</button>
-    </div>
-</div>
-
-<script>
-    // Bloqueo de acceso si no es admin
-    async function init() {
-        const token = localStorage.getItem('token_kazuma');
-        try {
-            const res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` }});
-            if (res.status !== 200) throw new Error();
-            document.getElementById('adminPanel').style.display = 'block';
-            cargarUsuarios(token);
-        } catch(e) {
-            document.body.innerHTML = '<div style="background:#000; height:100vh;"></div>';
-            window.location.href = '/';
-        }
-    }
-
-    async function cargarUsuarios(token) {
-        const res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` }});
-        const users = await res.json();
-        const list = document.getElementById('userList');
-        list.innerHTML = users.map(u => `
-            <div class="user-item">
-                <span>${u.email}</span>
-                <div>
-                    ${u.email === 'frasesbebor@gmail.com' 
-                        ? '<i class="fa-solid fa-lock lock-icon"></i>' 
-                        : `<button class="btn-action" onclick="abrirConfig('${u.id}')"><i class="fa-solid fa-gear"></i></button>
-                           <button class="btn-action" onclick="abrirCard('${u.id}')"><i class="fa-solid fa-credit-card"></i></button>`}
-                </div>
+    <div id="app" style="display:none;">
+        <div class="container">
+            <div class="header-panel">
+                <h1>Panel de Administración</h1>
             </div>
-        `).join('');
-    }
+            <input type="text" id="searchBar" class="search-input" placeholder="Buscar por email..." onkeyup="filtrar()">
+            <div id="userList"></div>
+        </div>
+    </div>
 
-    init();
-</script>
+    <div class="modal" id="configModal">
+        <div class="modal-content">
+            <h3>Configuración</h3>
+            <input type="text" id="editName" placeholder="Nuevo Nombre">
+            <input type="text" id="editRole" placeholder="Nuevo Rol">
+            <button class="btn-action" onclick="guardarCambios()">Guardar Cambios</button>
+        </div>
+    </div>
+
+    <script>
+        async function checkAccess() {
+            const token = localStorage.getItem('token_kazuma');
+            try {
+                const res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` }});
+                if (res.status !== 200) throw new Error();
+                document.getElementById('app').style.display = 'block';
+                renderList(token);
+            } catch (e) {
+                document.body.innerHTML = '<div style="background:#000; position:fixed; width:100%; height:100%;"></div>';
+                window.location.href = '/';
+            }
+        }
+
+        async function renderList(token) {
+            const res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` }});
+            const users = await res.json();
+            const container = document.getElementById('userList');
+            container.innerHTML = users.map(u => `
+                <div class="user-card" data-email="${u.email}">
+                    <div class="user-info">${u.email}</div>
+                    <div class="actions">
+                        ${u.email === 'frasesbebor@gmail.com' 
+                            ? '<i class="fa-solid fa-lock lock-icon"></i>' 
+                            : `<i class="fa-solid fa-gear icon-btn" onclick="abrirConfig('${u.id}')"></i>
+                               <i class="fa-solid fa-credit-card icon-btn" onclick="abrirTarjeta('${u.id}')"></i>`}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filtrar() {
+            const val = document.getElementById('searchBar').value.toLowerCase();
+            document.querySelectorAll('.user-card').forEach(card => {
+                card.style.display = card.dataset.email.toLowerCase().includes(val) ? 'flex' : 'none';
+            });
+        }
+
+        function abrirConfig(id) { document.getElementById('configModal').style.display = 'flex'; }
+        
+        checkAccess();
+    </script>
 </body>
 </html>
