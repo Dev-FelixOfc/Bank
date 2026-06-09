@@ -9,53 +9,91 @@
         body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
         .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; }
         .logo { font-size: 22px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px; }
+        .logo span { color: #111111; }
         .container { max-width: 500px; margin: 50px auto; padding: 0 20px; }
-        .profile-card { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 28px; padding: 35px; text-align: center; }
-        .btn-action { background: #6f42c1; color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: 700; cursor: pointer; }
+        .profile-card { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 28px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.03); text-align: center; }
+        .avatar-preview-wrapper { width: 120px; height: 120px; border-radius: 50%; background: #6f42c1; color: #ffffff; display: flex; justify-content: center; align-items: center; font-size: 44px; font-weight: 700; margin: 0 auto 20px auto; overflow: hidden; border: 4px solid #ffffff; box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+        .user-name { font-size: 24px; font-weight: 700; color: #111111; margin-bottom: 4px; }
+        .user-alias { font-size: 15px; color: #6f42c1; font-weight: 600; margin-bottom: 30px; display: inline-block; background: #f3ebff; padding: 4px 14px; border-radius: 20px; }
+        .dash-card { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: #ffffff; border-radius: 20px; padding: 24px; text-align: left; box-shadow: 0 8px 24px rgba(111, 66, 193, 0.15); margin-bottom: 20px; }
+        .dash-card-label { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 6px; font-weight: 600; }
+        .dash-card-value { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
+        .info-row { background: #f8f9fa; border: 1px solid #e1e5ee; border-radius: 16px; padding: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .info-label { font-size: 14px; color: #666666; font-weight: 600; }
+        .info-value { font-size: 16px; color: #111111; font-weight: 700; }
+        .btn-action { background: #6f42c1; color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; cursor: pointer; width: 100%; font-size: 16px; }
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
-        .modal-content { background:white; padding:30px; border-radius:20px; width:90%; max-width:400px; }
+        .modal-content { background:white; padding:30px; border-radius:20px; width:90%; max-width:400px; position:relative; }
         #toast { display:none; position:fixed; top:20px; right:20px; background:white; padding:20px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999; border:1px solid #e1e5ee; }
+        .close-btn { cursor:pointer; font-weight:bold; float:right; font-size:18px; }
     </style>
 </head>
 <body>
-    <div id="toast"><span onclick="this.parentElement.style.display='none'" style="cursor:pointer; float:right;">X</span><p id="toast-text"></p></div>
+
+    <div id="toast"><span class="close-btn" onclick="this.parentElement.style.display='none'">X</span><p id="toast-text"></p></div>
+
     <nav class="navbar"><div class="logo">Bank <span>Kazuma</span></div></nav>
+
     <div class="container">
         <div id="profile-container" class="profile-card" style="display: none;">
-            <div id="preview-name" style="font-size:24px; font-weight:700;"></div>
-            <button class="btn-action" onclick="abrirModal()">Donar</button>
+            <div class="avatar-preview-wrapper"><span id="preview-initials">-</span></div>
+            <div class="user-name" id="preview-name"></div>
+            <div class="user-alias" id="preview-alias"></div>
+            <div class="dash-card">
+                <div class="dash-card-label">Fondos Totales</div>
+                <div class="dash-card-value" id="preview-balance">0.00 KZM</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Tarjetas asociadas</div>
+                <div class="info-value" id="preview-cards">0</div>
+            </div>
+            <button class="btn-action" onclick="abrirModal()">Donar a este usuario</button>
         </div>
     </div>
+
     <div id="donate-modal" class="modal">
         <div class="modal-content">
-            <h3>Datos de Donación</h3>
-            <select id="user-cards" style="width:100%; padding:10px; margin:10px 0;"></select>
-            <input type="text" id="target-uid" placeholder="UID/ID Destino" style="width:100%; padding:10px; margin-bottom:10px;">
-            <input type="number" id="donation-amount" placeholder="Cantidad" style="width:100%; padding:10px; margin-bottom:10px;">
-            <button class="btn-action" onclick="procesarDonacion()">Enviar</button>
-            <button class="btn-action" style="background:#dc3545; margin-top:10px;" onclick="document.getElementById('donate-modal').style.display='none'">Cancelar</button>
+            <h3 style="margin-bottom:20px;">Donar a <span id="target-name"></span></h3>
+            <select id="user-cards" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px;"></select>
+            <input type="text" id="target-uid" placeholder="UID/ID del Destinatario" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
+            <input type="number" id="donation-amount" placeholder="Cantidad (KZM)" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
+            <button class="btn-action" onclick="procesarDonacion()">Confirmar Donación</button>
+            <button class="btn-action" style="background:#dc3545; margin-top:10px;" onclick="cerrarModal()">Cancelar</button>
         </div>
     </div>
+
     <script>
         let profileData = null;
+
         document.addEventListener('DOMContentLoaded', async () => {
             const alias = window.location.pathname.split('/@')[1];
             const res = await fetch(`/api/public/profile/${alias}`);
             profileData = await res.json();
             document.getElementById('preview-name').innerText = profileData.username;
+            document.getElementById('preview-alias').innerText = `@${profileData.alias}`;
+            document.getElementById('preview-balance').innerText = `${parseFloat(profileData.balance).toFixed(2)} KZM`;
+            document.getElementById('preview-cards').innerText = profileData.cardsCount;
             document.getElementById('profile-container').style.display = 'block';
         });
-        function mostrarMensaje(t) { document.getElementById('toast-text').innerText = t; document.getElementById('toast').style.display = 'block'; }
+
+        function mostrarMensaje(texto) {
+            document.getElementById('toast-text').innerText = texto;
+            document.getElementById('toast').style.display = 'block';
+        }
+
         async function abrirModal() {
             const token = localStorage.getItem('token_kazuma');
-            if (!token) return mostrarMensaje("Inicia sesión.");
+            if (!token) { mostrarMensaje("Debes iniciar sesión."); return; }
             const res = await fetch('/api/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
             const miData = await res.json();
             const select = document.getElementById('user-cards');
             select.innerHTML = '';
-            miData.tarjetas.forEach(t => { select.innerHTML += `<option value="${t.uid}|${t.card_number}">Tarjeta ${t.uid}</option>`; });
+            if (!miData.tarjetas || miData.tarjetas.length === 0) { mostrarMensaje("No tienes tarjetas."); return; }
+            miData.tarjetas.forEach(t => { select.innerHTML += `<option value="${t.uid}|${t.card_number}">Tarjeta ${t.uid} ($${t.balance})</option>`; });
+            document.getElementById('target-name').innerText = profileData.username;
             document.getElementById('donate-modal').style.display = 'flex';
         }
+
         async function procesarDonacion() {
             const token = localStorage.getItem('token_kazuma');
             const [uidEmisor, numTarjeta] = document.getElementById('user-cards').value.split('|');
@@ -66,11 +104,24 @@
             const res = await fetch('/api/users/transfer', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tokenEmisor: miData.security_token, uidEmisor, numTarjetaEmisor: numTarjeta, uidReceptor: uidDestino, cantidad })
+                body: JSON.stringify({
+                    tokenEmisor: miData.security_token,
+                    uidEmisor: uidEmisor,
+                    numTarjetaEmisor: numTarjeta,
+                    uidReceptor: uidDestino,
+                    cantidad: cantidad
+                })
             });
             const data = await res.json();
-            if (res.ok) { mostrarMensaje("Éxito"); setTimeout(() => location.reload(), 1000); } else { mostrarMensaje(data.error); }
+            if (res.ok) {
+                mostrarMensaje("Transacción exitosa");
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                mostrarMensaje("Error: " + data.error);
+            }
         }
+
+        function cerrarModal() { document.getElementById('donate-modal').style.display = 'none'; }
     </script>
 </body>
 </html>
