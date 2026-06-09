@@ -73,4 +73,28 @@ router.post('/new', middlewareLocal, (req, res) => {
     }
 });
 
+router.delete('/delete/:uid', middlewareLocal, (req, res) => {
+    try {
+        const uidAEliminar = req.params.uid;
+        const datos = db.leerDatos();
+
+        if (!datos.tarjetas) {
+            return res.status(404).json({ error: "No hay tarjetas" });
+        }
+
+        const indice = datos.tarjetas.findIndex(t => t.uid === uidAEliminar && t.user_id == req.userId);
+
+        if (indice === -1) {
+            return res.status(404).json({ error: "Tarjeta no encontrada o no te pertenece" });
+        }
+
+        datos.tarjetas.splice(indice, 1);
+        db.guardarDatos(datos);
+
+        res.json({ message: "Tarjeta eliminada exitosamente" });
+    } catch (err) {
+        res.status(500).json({ error: "Error al eliminar: " + err.message });
+    }
+});
+
 module.exports = router;
