@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const readline = require('readline');
 const bcrypt = require('bcryptjs');
+const cors = require('cors');
 const app = express();
 
 const authRoutes = require('./routes/auth');
@@ -9,6 +10,12 @@ const userRoutes = require('./routes/users');
 const adminRoutes = require('./routes/admin');
 const cardsRoutes = require('./routes/cards');
 const db = require('./database');
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use(express.json());
 
@@ -84,7 +91,6 @@ function iniciarConsolaInteractiva() {
         input: process.stdin,
         output: process.stdout
     });
-
     rl.on('line', (linea) => {
         if (linea.trim() === 'p:user/create') {
             rl.question('Ingrese Correo: ', (email) => {
