@@ -1,56 +1,86 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Bank Kazuma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        #blackScreen { position: fixed; top:0; left:0; width:100%; height:100%; background: black; z-index: 9999; }
-        .hidden { display: none; }
-        .locked { opacity: 0.5; pointer-events: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; min-height: 100vh; }
+        
+        /* Pantalla negra inicial */
+        #blackScreen { position: fixed; top:0; left:0; width:100%; height:100%; background: #000; z-index: 9999; }
+        
+        .container { max-width: 1000px; margin: 40px auto; padding: 20px; }
+        h1 { margin-bottom: 20px; color: #6f42c1; }
+        
+        input#search { width: 100%; padding: 12px; background: #111; border: 1px solid #333; color: white; border-radius: 10px; margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; background: #111; border-radius: 15px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #222; }
+        
+        .btn-action { background: #6f42c1; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-right: 5px; }
+        .btn-lock { background: #333; cursor: not-allowed; }
     </style>
 </head>
 <body>
-    <div id="blackScreen"></div> <!-- Pantalla negra inicial -->
 
-    <div id="adminContent" class="hidden">
-        <input type="text" id="search" placeholder="Buscar por nombre, correo o rol..." onkeyup="filterUsers()">
+    <div id="blackScreen"></div>
+
+    <div class="container" id="adminContent" style="display:none;">
+        <h1>Panel de Administración Kazuma</h1>
+        <input type="text" id="search" placeholder="Buscar por usuario, correo o rol..." onkeyup="filtrar()">
+        
         <table id="userTable">
-            <!-- Aquí se cargan los usuarios con fetch -->
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="userBody"></tbody>
         </table>
     </div>
 
     <script>
-        // Protección de acceso
-        async function checkAdmin() {
-            const token = localStorage.getItem('token_kazuma');
-            try {
-                const res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` }});
-                if (!res.ok) throw new Error();
-                document.getElementById('blackScreen').remove();
-                document.getElementById('adminContent').classList.remove('hidden');
-                renderUsers(await res.json());
-            } catch {
-                window.location.href = '/dash';
-            }
-        }
+        // Verificación inicial
+        fetch('/api/admin/users', { 
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token_kazuma')}` } 
+        })
+        .then(res => {
+            if(!res.ok) window.location.href = '/dash';
+            return res.json();
+        })
+        .then(users => {
+            document.getElementById('blackScreen').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+            renderizar(users);
+        });
 
-        function renderUsers(users) {
-            const table = document.getElementById('userTable');
-            table.innerHTML = users.map(u => `
+        function renderizar(users) {
+            const body = document.getElementById('userBody');
+            body.innerHTML = users.map(u => `
                 <tr>
                     <td>${u.username}</td>
                     <td>${u.email} ${u.email === 'frasesbebor@gmail.com' ? '🔒' : ''}</td>
+                    <td>${u.rol}</td>
                     <td>
-                        <button ${u.email === 'frasesbebor@gmail.com' ? 'disabled' : ''} onclick="changeRole('${u.id}')">Cambiar Rol</button>
+                        <button class="btn-action ${u.email === 'frasesbebor@gmail.com' ? 'btn-lock' : ''}" 
+                                ${u.email === 'frasesbebor@gmail.com' ? 'disabled' : ''}
+                                onclick="alert('Funcionalidad de cambio de rol')">Rol</button>
+                        <button class="btn-action" onclick="alert('Gestión de dinero para ${u.uid}')">Dinero</button>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function filterUsers() {
+        function filtrar() {
             const val = document.getElementById('search').value.toLowerCase();
-            // Lógica de filtrado de filas de la tabla...
+            const rows = document.querySelectorAll('#userBody tr');
+            rows.forEach(r => r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none');
         }
-
-        checkAdmin();
     </script>
 </body>
 </html>
