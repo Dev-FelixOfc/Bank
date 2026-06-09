@@ -205,10 +205,10 @@
             </div>
 
             <div class="card normal-card">
-                <div class="card-title">Identidad Digital</div>
-                <div class="stat-value" id="txtAlias">Sin Alias</div>
-                <div class="stat-desc">Configura tu alias único para recibir pagos de otros usuarios de forma inmediata mediante rutas rápidas.</div>
-                <button class="btn-action" onclick="window.location.href='/profile'">Configurar Cuenta</button>
+                <div class="card-title">Token de Seguridad</div>
+                <div class="stat-value" id="txtToken" style="font-size: 14px; word-break: break-all;">No generado</div>
+                <div class="stat-desc">Utiliza este token para integraciones externas seguras. No lo compartas con nadie.</div>
+                <button class="btn-action" onclick="generarToken()">Generar Nuevo Token</button>
             </div>
         </div>
     </div>
@@ -238,12 +238,9 @@
                 usuarioDatos = data;
                 document.getElementById('txtWelcome').innerText = `¡Hola, ${data.username}!`;
                 
-                // Corrección: Si el balance es menor a 0, mostramos 0.00
                 const balanceVisual = data.balance < 0 ? 0 : data.balance;
                 document.getElementById('numBalance').innerText = `$${balanceVisual.toFixed(2)}`;
                 
-                document.getElementById('txtAlias').innerText = data.alias ? `@${data.alias}` : 'No configurado';
-
                 if (data.cardsCount) {
                     document.getElementById('numCards').innerText = `${data.cardsCount} / 3`;
                 }
@@ -256,6 +253,28 @@
                 localStorage.removeItem('token_kazuma');
                 window.location.href = '/login';
             });
+        }
+
+        async function generarToken() {
+            if (!confirm("¿Generar nuevo token? El anterior dejará de funcionar inmediatamente.")) return;
+            
+            const token = localStorage.getItem('token_kazuma');
+            try {
+                const res = await fetch('/api/users/generate-security-token', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (data.token) {
+                    document.getElementById('txtToken').innerText = data.token;
+                    alert("¡Token generado exitosamente! Guárdalo en un lugar seguro:\n\n" + data.token);
+                } else {
+                    alert(data.error || "Error al generar token");
+                }
+            } catch (err) {
+                alert("Error de conexión");
+            }
         }
 
         function toggleMenu() {
