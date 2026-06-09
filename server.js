@@ -57,11 +57,11 @@ app.get('/dash', (req, res) => {
 });
 
 app.get('/cards', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'manage-cards.html'));
+    res.sendFile(path.join(__dirname, 'public', 'cards', 'index.html'));
 });
 
 app.get('/create-card', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'create-card.html'));
+    res.sendFile(path.join(__dirname, 'public', 'cards', 'create.html'));
 });
 
 app.get('*', (req, res) => {
