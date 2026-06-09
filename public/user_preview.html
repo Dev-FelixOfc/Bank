@@ -70,6 +70,10 @@
             const res = await fetch(`/api/public/profile/${alias}`);
             profileData = await res.json();
             
+            if (profileData.alias) {
+                document.title = `Perfil de @${profileData.alias}`;
+            }
+            
             document.getElementById('preview-name').innerText = profileData.username;
             document.getElementById('preview-alias').innerText = `@${profileData.alias}`;
             
@@ -94,11 +98,18 @@
             if (!token) { mostrarMensaje("Debes iniciar sesión."); return; }
             const res = await fetch('/api/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
             const miData = await res.json();
+            
+            if (miData.id === profileData.id) {
+                mostrarMensaje("No puedes donarte dinero a ti mismo.");
+                return;
+            }
+            
             const select = document.getElementById('user-cards');
             select.innerHTML = '';
             if (!miData.tarjetas || miData.tarjetas.length === 0) { mostrarMensaje("No tienes tarjetas."); return; }
             miData.tarjetas.forEach(t => { select.innerHTML += `<option value="${t.uid}|${t.card_number}">Tarjeta ${t.uid} ($${t.balance})</option>`; });
             document.getElementById('target-name').innerText = profileData.username;
+            document.getElementById('target-uid').value = profileData.id;
             document.getElementById('donate-modal').style.display = 'flex';
         }
 
@@ -110,6 +121,12 @@
             
             const miRes = await fetch('/api/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
             const miData = await miRes.json();
+            
+            if (miData.id === parseInt(uidDestino)) {
+                mostrarMensaje("Error: No puedes realizar transferencias a tu propia cuenta.");
+                cerrarModal();
+                return;
+            }
             
             const res = await fetch('/api/users/transfer', {
                 method: 'POST',
