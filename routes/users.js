@@ -117,6 +117,7 @@ router.post('/transfer', (req, res) => {
         
         if (!emisor) return res.status(401).json({ error: "Token invalido" });
         if (!tarEmisor) return res.status(404).json({ error: "Datos de tarjeta de origen incorrectos" });
+        if (parseFloat(tarEmisor.balance || 0) < monto) return res.status(400).json({ error: "Fondos insuficientes" });
         
         const tarReceptor = datos.tarjetas.find(t => t.uid === uidReceptor);
         const usuarioReceptor = datos.usuarios.find(u => u.id == uidReceptor);
