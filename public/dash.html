@@ -5,169 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Bank Kazuma</title>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            background: #f8f9fa;
-            color: #111111;
-            min-height: 100vh;
-        }
-        .navbar {
-            background: #ffffff;
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e1e5ee;
-            position: relative;
-            z-index: 100;
-        }
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #6f42c1;
-            letter-spacing: -0.5px;
-        }
-        .logo span {
-            color: #111111;
-        }
-        .menu-toggle {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #6f42c1;
-            display: block;
-        }
-        .nav-menu {
-            position: absolute;
-            top: 100%;
-            right: 24px;
-            background: #ffffff;
-            border: 1px solid #e1e5ee;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            width: 220px;
-            display: none;
-            flex-direction: column;
-            padding: 8px 0;
-        }
-        .nav-menu.active {
-            display: flex;
-        }
-        .nav-item {
-            padding: 12px 20px;
-            color: #333333;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .nav-item:hover {
-            background: #f3ebff;
-            color: #6f42c1;
-        }
-        .admin-option {
-            border-top: 1px solid #e1e5ee;
-            color: #dc3545;
-            display: none;
-        }
-        .admin-option:hover {
-            background: #fdf2f2;
-            color: #dc3545;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 24px;
-        }
-        .welcome-section {
-            margin-bottom: 32px;
-        }
-        .welcome-section h1 {
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            margin-bottom: 4px;
-        }
-        .welcome-section p {
-            color: #666666;
-            font-size: 15px;
-        }
-        .grid-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 24px;
-            margin-bottom: 32px;
-        }
-        .card {
-            background: #ffffff;
-            border: 1px solid #e1e5ee;
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.01);
-        }
-        .card-balance {
-            background: linear-gradient(135deg, #6f42c1 0%, #492787 100%);
-            color: #ffffff;
-            border: none;
-        }
-        .card-title {
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: #e1e5ee;
-        }
-        .card-balance .card-title {
-            color: #f3ebff;
-        }
-        .balance-value {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
-        .card-info-text {
-            font-size: 14px;
-            color: #f3ebff;
-            opacity: 0.9;
-        }
-        .normal-card .card-title {
-            color: #666666;
-        }
-        .stat-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #111111;
-            margin-bottom: 6px;
-        }
-        .stat-desc {
-            font-size: 14px;
-            color: #666666;
-            line-height: 1.4;
-        }
-        .btn-action {
-            background: #6f42c1;
-            color: #ffffff;
-            border: none;
-            padding: 12px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 14px;
-            transition: background 0.2s;
-        }
-        .btn-action:hover {
-            background: #5a32a3;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
+        .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; position: relative; z-index: 100; }
+        .logo { font-size: 22px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px; }
+        .logo span { color: #111111; }
+        .menu-toggle { background: none; border: none; font-size: 24px; cursor: pointer; color: #6f42c1; display: block; }
+        .nav-menu { position: absolute; top: 100%; right: 24px; background: #ffffff; border: 1px solid #e1e5ee; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 220px; display: none; flex-direction: column; padding: 8px 0; }
+        .nav-menu.active { display: flex; }
+        .nav-item { padding: 12px 20px; color: #333333; text-decoration: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .nav-item:hover { background: #f3ebff; color: #6f42c1; }
+        .admin-option { border-top: 1px solid #e1e5ee; color: #dc3545; display: none; }
+        .admin-option:hover { background: #fdf2f2; color: #dc3545; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+        .welcome-section { margin-bottom: 32px; }
+        .welcome-section h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .welcome-section p { color: #666666; font-size: 15px; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .card { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 20px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
+        .card-balance { background: linear-gradient(135deg, #6f42c1 0%, #492787 100%); color: #ffffff; border: none; }
+        .card-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 16px; color: #e1e5ee; }
+        .card-balance .card-title { color: #f3ebff; }
+        .balance-value { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+        .card-info-text { font-size: 14px; color: #f3ebff; opacity: 0.9; }
+        .normal-card .card-title { color: #666666; }
+        .stat-value { font-size: 24px; font-weight: 700; color: #111111; margin-bottom: 6px; }
+        .stat-desc { font-size: 14px; color: #666666; line-height: 1.4; }
+        .btn-action { background: #6f42c1; color: #ffffff; border: none; padding: 12px 20px; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 14px; transition: background 0.2s; }
+        .btn-action:hover { background: #5a32a3; }
     </style>
 </head>
 <body>
@@ -208,101 +73,101 @@
                 <div class="card-title">Token de Seguridad</div>
                 <div class="stat-value" id="txtToken" style="font-size: 14px; word-break: break-all;">No generado</div>
                 <div class="stat-desc">Utiliza este token para integraciones externas seguras. No lo compartas con nadie.</div>
-                <button class="btn-action" onclick="generarToken()">Generar Nuevo Token</button>
+                <button class="btn-action" onclick="generarToken()">Generar Token</button>
             </div>
+        </div>
+    </div>
+
+    <div id="tokenModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+        <div style="background:white; padding:30px; border-radius:20px; width:90%; max-width:400px; text-align:center;">
+            <h3 style="margin-bottom:20px;">Token de Seguridad</h3>
+            <p id="modalTokenText" style="word-break:break-all; background:#f8f9fa; padding:15px; border-radius:10px; font-family:monospace; margin-bottom:20px;"></p>
+            <button class="btn-action" onclick="copiarToken()">Copiar Token</button>
+            <button class="btn-action" style="background:#dc3545;" onclick="cerrarModal()">Cerrar</button>
         </div>
     </div>
 
     <script>
         let usuarioDatos = null;
+        let tokenSeguridadActual = null;
 
         function verificarAutenticacion() {
             const token = localStorage.getItem('token_kazuma');
-            if (!token) {
-                window.location.href = '/login';
-                return;
-            }
-
+            if (!token) { window.location.href = '/login'; return; }
             fetch('/api/users/me', {
                 method: 'GET',
-                headers: { 
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
             })
-            .then(res => {
-                if (!res.ok) throw new Error();
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
                 usuarioDatos = data;
+                tokenSeguridadActual = data.security_token;
                 document.getElementById('txtWelcome').innerText = `¡Hola, ${data.username}!`;
-                
                 const balanceVisual = data.balance < 0 ? 0 : data.balance;
                 document.getElementById('numBalance').innerText = `$${balanceVisual.toFixed(2)}`;
-                
-                if (data.cardsCount) {
-                    document.getElementById('numCards').innerText = `${data.cardsCount} / 3`;
-                }
-
-                if (data.rol === 'admin') {
-                    document.getElementById('btnAdminPanel').style.display = 'block';
-                }
+                if (data.cardsCount) document.getElementById('numCards').innerText = `${data.cardsCount} / 3`;
+                if (data.rol === 'admin') document.getElementById('btnAdminPanel').style.display = 'block';
+                actualizarUItoken();
             })
-            .catch(() => {
-                localStorage.removeItem('token_kazuma');
-                window.location.href = '/login';
-            });
+            .catch(() => { localStorage.removeItem('token_kazuma'); window.location.href = '/login'; });
+        }
+
+        function actualizarUItoken() {
+            const btnToken = document.querySelector('.card:last-child .btn-action');
+            const txtToken = document.getElementById('txtToken');
+            if (tokenSeguridadActual) {
+                txtToken.innerText = "●●●●●●●●●●●●";
+                btnToken.innerText = "Ver Token";
+                btnToken.onclick = abrirModal;
+            } else {
+                txtToken.innerText = "No generado";
+                btnToken.innerText = "Generar Token";
+                btnToken.onclick = generarToken;
+            }
+        }
+
+        function abrirModal() {
+            document.getElementById('modalTokenText').innerText = tokenSeguridadActual;
+            document.getElementById('tokenModal').style.display = 'flex';
+        }
+
+        function cerrarModal() { document.getElementById('tokenModal').style.display = 'none'; }
+
+        async function copiarToken() {
+            await navigator.clipboard.writeText(tokenSeguridadActual);
+            alert("Token copiado");
         }
 
         async function generarToken() {
-            if (!confirm("¿Generar nuevo token? El anterior dejará de funcionar inmediatamente.")) return;
-            
+            if (tokenSeguridadActual && !confirm("¿Generar nuevo token? El anterior dejará de funcionar.")) return;
             const token = localStorage.getItem('token_kazuma');
-            try {
-                const res = await fetch('/api/users/generate-security-token', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                
-                if (data.token) {
-                    document.getElementById('txtToken').innerText = data.token;
-                    alert("¡Token generado exitosamente! Guárdalo en un lugar seguro:\n\n" + data.token);
-                } else {
-                    alert(data.error || "Error al generar token");
-                }
-            } catch (err) {
-                alert("Error de conexión");
+            const res = await fetch('/api/users/generate-security-token', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (data.token) {
+                tokenSeguridadActual = data.token;
+                actualizarUItoken();
+                abrirModal();
             }
         }
 
-        function toggleMenu() {
-            document.getElementById('menuDropdown').classList.toggle('active');
-        }
+        function toggleMenu() { document.getElementById('menuDropdown').classList.toggle('active'); }
 
         function irAPerfilPublico() {
-            if (usuarioDatos && usuarioDatos.alias) {
-                window.location.href = `/@${usuarioDatos.alias}`;
-            } else {
-                alert('Primero debes configurar un alias en tu perfil para tener una dirección pública.');
-            }
+            if (usuarioDatos && usuarioDatos.alias) window.location.href = `/@${usuarioDatos.alias}`;
+            else alert('Configura un alias primero.');
         }
 
-        function cerrarSesion() {
-            localStorage.removeItem('token_kazuma');
-            window.location.href = '/login';
-        }
+        function cerrarSesion() { localStorage.removeItem('token_kazuma'); window.location.href = '/login'; }
 
         window.onclick = function(event) {
             if (!event.target.matches('.menu-toggle')) {
                 const dropdown = document.getElementById('menuDropdown');
-                if (dropdown.classList.contains('active')) {
-                    dropdown.classList.remove('active');
-                }
+                if (dropdown.classList.contains('active')) dropdown.classList.remove('active');
             }
         }
-
         document.addEventListener('DOMContentLoaded', verificarAutenticacion);
     </script>
 </body>
