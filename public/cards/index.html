@@ -135,7 +135,16 @@
                 }
 
                 data.tarjetas.forEach(tarjeta => {
-                    const avatarSrc = tarjeta.avatar || "https://via.placeholder.com/150";
+                    // Lógica del avatar: imagen o inicial
+                    const inicial = tarjeta.username_dueno ? tarjeta.username_dueno.charAt(0).toUpperCase() : '?';
+                    let avatarHtml = '';
+                    
+                    if (tarjeta.avatar && tarjeta.avatar.length > 5) {
+                        avatarHtml = `<img src="${tarjeta.avatar}" class="card-avatar" alt="Avatar">`;
+                    } else {
+                        avatarHtml = `<div class="card-avatar" style="display:flex; align-items:center; justify-content:center; background:#111; color:#fff; font-weight:bold; font-size:20px;">${inicial}</div>`;
+                    }
+
                     let expDisplay = tarjeta.fecha_vencimiento;
                     if (expDisplay !== "NUNCA" && expDisplay.includes('-')) {
                         const [ano, mes] = expDisplay.split('-');
@@ -146,7 +155,7 @@
                         <div class="visual-card">
                             <div class="card-top">
                                 <div class="card-brand">Kazuma Card</div>
-                                <img src="${avatarSrc}" class="card-avatar" alt="Avatar">
+                                ${avatarHtml}
                             </div>
                             <div class="card-number">${tarjeta.card_number}</div>
                             <div class="card-bottom">
