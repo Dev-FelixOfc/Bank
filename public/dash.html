@@ -237,9 +237,13 @@
             .then(data => {
                 usuarioDatos = data;
                 document.getElementById('txtWelcome').innerText = `¡Hola, ${data.username}!`;
-                document.getElementById('numBalance').innerText = `$${data.balance.toFixed(2)}`;
-                document.getElementById('txtAlias').innerText = data.alias ? `@${data.alias}` : 'No configurado';
                 
+                // Corrección: Si el balance es menor a 0, mostramos 0.00
+                const balanceVisual = data.balance < 0 ? 0 : data.balance;
+                document.getElementById('numBalance').innerText = `$${balanceVisual.toFixed(2)}`;
+                
+                document.getElementById('txtAlias').innerText = data.alias ? `@${data.alias}` : 'No configurado';
+
                 if (data.cardsCount) {
                     document.getElementById('numCards').innerText = `${data.cardsCount} / 3`;
                 }
