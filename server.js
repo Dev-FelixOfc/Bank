@@ -60,7 +60,7 @@ app.get('/cards', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'cards', 'index.html'));
 });
 
-app.get('/create-card', (req, res) => {
+app.get('/cards/create', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'cards', 'create.html'));
 });
 
