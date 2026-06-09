@@ -2,68 +2,180 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Tarjetas - Bank Kazuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; display: flex; flex-direction: column; }
+        
         .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; position: relative; z-index: 100; }
-        .menu-btn { background: none; border: none; font-size: 22px; cursor: pointer; }
-        .logo { font-size: 22px; font-weight: 800; color: #6f42c1; cursor: pointer; }
-        .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background: #ffffff; box-shadow: 4px 0 15px rgba(0,0,0,0.05); transition: 0.3s; padding-top: 80px; z-index: 99; }
+        .nav-left { display: flex; align-items: center; gap: 16px; }
+        .menu-btn { background: none; border: none; font-size: 22px; color: #111111; cursor: pointer; padding: 4px; }
+        .logo { font-size: 22px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px; cursor: pointer; }
+        .logo span { color: #111111; }
+        
+        .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background: #ffffff; box-shadow: 4px 0 15px rgba(0,0,0,0.05); transition: left 0.3s ease; z-index: 99; padding-top: 80px; }
         .sidebar.active { left: 0; }
-        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: #333; text-decoration: none; font-weight: 600; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; color: #333333; text-decoration: none; font-weight: 600; border-radius: 12px; transition: background 0.2s; }
         .sidebar-item:hover { background: #f3ebff; color: #6f42c1; }
-        .container { max-width: 900px; margin: 40px auto; padding: 0 24px; text-align: center; }
+        .sidebar-item i { font-size: 18px; width: 24px; text-align: center; }
+
+        .container { max-width: 900px; width: 100%; margin: 40px auto; padding: 0 24px; text-align: center; flex: 1; }
         .header-panel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
-        .counter-badge { background: #6f42c1; color: #ffffff; padding: 6px 14px; border-radius: 20px; font-weight: 700; }
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-        .visual-card { background: linear-gradient(135deg, #bf953f, #aa771c); color: #111; padding: 24px; border-radius: 20px; height: 200px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
-        .card-number { font-size: 18px; font-weight: 700; font-family: monospace; }
+        .header-panel h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+        .counter-badge { background: #6f42c1; color: #ffffff; padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 10px rgba(111, 66, 193, 0.15); }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; justify-content: center; }
+        
+        .visual-card { 
+            background: linear-gradient(135deg, #bf953f 0%, #fcf6ba 25%, #b38728 50%, #fbf5b7 75%, #aa771c 100%); 
+            color: #111111; 
+            padding: 24px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 20px rgba(179, 135, 40, 0.2); 
+            position: relative; 
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.4);
+            text-shadow: 0 1px 1px rgba(255,255,255,0.4);
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-align: left;
+        }
+        .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .card-brand { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .card-avatar { 
+            width: 44px; 
+            height: 44px; 
+            border-radius: 8px; 
+            object-fit: cover; 
+            border: 2px solid #111111;
+            background: #ffffff;
+        }
+        
+        .card-number { font-size: 18px; font-weight: 700; letter-spacing: 1.5px; font-family: monospace; word-break: break-all; margin: 15px 0; }
+        
+        .card-bottom { display: flex; justify-content: space-between; align-items: flex-end; }
+        .card-holder { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-meta { display: flex; gap: 16px; }
+        .meta-label { font-size: 8px; text-transform: uppercase; color: #222222; font-weight: 700; display: block; margin-bottom: 2px; }
+        .meta-value { font-size: 11px; font-weight: 700; font-family: monospace; }
+
+        .no-cards { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 20px; padding: 40px; grid-column: 1 / -1; }
+        .no-cards p { color: #666666; font-size: 15px; margin-bottom: 20px; }
+        .btn-create-inline { background: #6f42c1; color: #ffffff; border: none; padding: 12px 24px; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; text-decoration: none; display: inline-block; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); display: none; z-index: 98; }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
 
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; max-width: 350px; width: 100%;"></div>
+
     <nav class="navbar">
-        <div style="display:flex; align-items:center; gap:16px;">
+        <div class="nav-left">
             <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
             <div class="logo" onclick="window.location.href='/dash'">Bank <span>Kazuma</span></div>
         </div>
     </nav>
 
+    <div class="overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
     <div class="sidebar" id="sidebarMenu">
-        <a href="/dash" class="sidebar-item"><i class="fa-solid fa-house"></i>Inicio</a>
-        <a href="/cards/create" class="sidebar-item"><i class="fa-solid fa-plus"></i>Crear Tarjeta</a>
+        <ul class="sidebar-menu">
+            <li><a href="/dash" class="sidebar-item"><i class="fa-solid fa-house"></i>Inicio</a></li>
+            <li><a href="/create-card" class="sidebar-item"><i class="fa-solid fa-plus"></i>Crear Tarjeta</a></li>
+        </ul>
     </div>
 
     <div class="container">
         <div class="header-panel">
-            <h1>Mis Tarjetas</h1>
+            <h1>Mis Tarjetas Virtuales</h1>
             <div class="counter-badge" id="lblCounter">0 / 3</div>
         </div>
-        <div class="cards-grid" id="cardsContainer"></div>
+
+        <div class="cards-grid" id="cardsContainer">
+        </div>
     </div>
 
     <script>
-        function toggleMenu() { document.getElementById('sidebarMenu').classList.toggle('active'); }
+        function toggleMenu() {
+            document.getElementById('sidebarMenu').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
 
-        fetch('/api/cards', { headers: { 'Authorization': `Bearer ${localStorage.getItem('token_kazuma')}` } })
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('lblCounter').innerText = `${data.total} / 3`;
-            const container = document.getElementById('cardsContainer');
-            data.tarjetas.forEach(t => {
-                container.innerHTML += `
-                    <div class="visual-card">
-                        <div style="display:flex; justify-content:space-between;"><b>KAZUMA CARD</b><img src="${t.avatar || ''}" width="40" height="40" style="border-radius:8px; border:1px solid #000;"></div>
-                        <div class="card-number">${t.card_number}</div>
-                        <div style="display:flex; justify-content:space-between;">
-                            <div><small>TITULAR</small><br><b>${t.username_dueno}</b></div>
-                            <div style="text-align:right;"><small>VENCE</small><br><b>${t.fecha_vencimiento}</b></div>
+        function cargarTarjetas() {
+            const token = localStorage.getItem('token_kazuma');
+            if (!token) { window.location.href = '/login'; return; }
+
+            fetch('/api/cards', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const total = data.total || 0;
+                document.getElementById('lblCounter').innerText = `${total} / 3`;
+                
+                const container = document.getElementById('cardsContainer');
+                container.innerHTML = "";
+
+                if (total === 0) {
+                    container.innerHTML = `
+                        <div class="no-cards">
+                            <p>Aún no posees ninguna tarjeta dorada en este ecosistema.</p>
+                            <a href="/create-card" class="btn-create-inline"><i class="fa-solid fa-plus" style="margin-right:8px;"></i>Generar mi primera tarjeta</a>
                         </div>
-                    </div>`;
+                    `;
+                    return;
+                }
+
+                data.tarjetas.forEach(tarjeta => {
+                    const avatarSrc = tarjeta.avatar || "https://via.placeholder.com/150";
+                    let expDisplay = tarjeta.fecha_vencimiento;
+                    if (expDisplay !== "NUNCA" && expDisplay.includes('-')) {
+                        const [ano, mes] = expDisplay.split('-');
+                        expDisplay = `${mes}/${ano.slice(-2)}`;
+                    }
+
+                    const cardHtml = `
+                        <div class="visual-card">
+                            <div class="card-top">
+                                <div class="card-brand">Kazuma Card</div>
+                                <img src="${avatarSrc}" class="card-avatar" alt="Avatar">
+                            </div>
+                            <div class="card-number">${tarjeta.card_number}</div>
+                            <div class="card-bottom">
+                                <div>
+                                    <span class="meta-label">Titular</span>
+                                    <div class="card-holder">${tarjeta.username_dueno}</div>
+                                </div>
+                                <div class="card-meta">
+                                    <div>
+                                        <span class="meta-label">UID</span>
+                                        <span class="meta-value">${tarjeta.uid}</span>
+                                    </div>
+                                    <div>
+                                        <span class="meta-label">Vence</span>
+                                        <span class="meta-value">${expDisplay}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHtml;
+                });
+            })
+            .catch(() => {
+                window.location.href = '/login';
             });
-        });
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarTarjetas);
     </script>
 </body>
 </html>
