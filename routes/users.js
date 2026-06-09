@@ -30,7 +30,7 @@ router.get('/me', middlewareLocal, (req, res) => {
             email: user.email,
             alias: user.alias,
             rol: user.rol,
-            balance: balanceTotal,
+            balance: user.balance || 0,
             avatar: user.avatar || null,
             cardsCount: tarjetasUsuario.length,
             tarjetas: tarjetasUsuario,
@@ -110,18 +110,14 @@ router.post('/transfer', (req, res) => {
         const { tokenEmisor, uidEmisor, numTarjetaEmisor, uidReceptor, cantidad } = req.body;
         const monto = parseFloat(cantidad);
         if (!monto || monto <= 0) return res.status(400).json({ error: "Cantidad invalida" });
-        
         const datos = db.leerDatos();
         const emisor = datos.usuarios.find(u => u.security_token === tokenEmisor);
         const tarEmisor = datos.tarjetas.find(t => t.uid === uidEmisor && t.card_number === numTarjetaEmisor && t.user_id === emisor?.id);
-        
         if (!emisor) return res.status(401).json({ error: "Token invalido" });
         if (!tarEmisor) return res.status(404).json({ error: "Datos de tarjeta de origen incorrectos" });
         if (parseFloat(tarEmisor.balance || 0) < monto) return res.status(400).json({ error: "Fondos insuficientes" });
-        
         const tarReceptor = datos.tarjetas.find(t => t.uid === uidReceptor);
         const usuarioReceptor = datos.usuarios.find(u => u.id == uidReceptor);
-        
         if (tarReceptor) {
             tarEmisor.balance = parseFloat(tarEmisor.balance || 0) - monto;
             tarReceptor.balance = parseFloat(tarReceptor.balance || 0) + monto;
@@ -131,7 +127,6 @@ router.post('/transfer', (req, res) => {
         } else {
             return res.status(404).json({ error: "Destino no encontrado" });
         }
-        
         db.guardarDatos(datos);
         res.json({ mensaje: "Transacción realizada exitosamente." });
     } catch (err) {
