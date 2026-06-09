@@ -7,7 +7,7 @@ const JWT_SECRET = 'KazumaEcosystemSecretKey2026';
 function middlewareLocal(req, res, next) {
     const authHeader = req.headers['authorization'];
     if (!authHeader) return res.status(401).json({ error: 'No token' });
-    
+
     const token = authHeader.split(' ')[1];
     if (!token) return res.status(401).json({ error: 'Format error' });
 
@@ -28,6 +28,7 @@ router.get('/me', middlewareLocal, (req, res) => {
         }
 
         const tarjetasUsuario = datos.tarjetas ? datos.tarjetas.filter(t => t.user_id == user.id) : [];
+        const balanceTotal = tarjetasUsuario.reduce((sum, t) => sum + (parseFloat(t.balance) || 0), 0);
 
         res.json({
             id: user.id,
@@ -35,7 +36,7 @@ router.get('/me', middlewareLocal, (req, res) => {
             email: user.email,
             alias: user.alias,
             rol: user.rol,
-            balance: user.balance,
+            balance: balanceTotal,
             avatar: user.avatar || null,
             cardsCount: tarjetasUsuario.length
         });
@@ -67,7 +68,7 @@ router.post('/profile/update', middlewareLocal, (req, res) => {
     try {
         const { username, email, alias } = req.body;
         const datos = db.leerDatos();
-        
+
         const userIndex = datos.usuarios.findIndex(u => u.id == req.userId);
         if (userIndex === -1) {
             return res.status(404).json({ error: "Usuario no encontrado" });
