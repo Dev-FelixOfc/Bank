@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Tarjeta - Bank Kazuma</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; padding: 40px; }
+        .box { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; background: #6f42c1; color: white; font-weight: 700; cursor: pointer; margin-top: 20px; }
+        .nav-link { display: block; text-align: center; margin-top: 15px; color: #6f42c1; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>Nueva Kazuma Card</h2>
+        <div style="margin: 20px 0;">
+            <label>Fecha de vencimiento:</label>
+            <input type="month" id="expDate" style="width:100%; padding:10px; margin-top:5px;">
+            <label><input type="checkbox" id="neverExpire" onclick="document.getElementById('expDate').disabled = this.checked"> No expira nunca</label>
+        </div>
+        <button class="btn" onclick="crearTarjeta()">Generar Plástico</button>
+        <a href="/cards" class="nav-link">← Volver a Mis Tarjetas</a>
+    </div>
+
+    <script>
+        function crearTarjeta() {
+            fetch('/api/cards/new', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token_kazuma')}` },
+                body: JSON.stringify({ 
+                    nunca_vence: document.getElementById('neverExpire').checked,
+                    fecha_vence: document.getElementById('expDate').value 
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.error) alert(data.error);
+                else window.location.href = '/cards';
+            });
+        }
+    </script>
+</body>
+</html>
