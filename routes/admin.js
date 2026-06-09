@@ -47,9 +47,17 @@ router.post('/card/balance', middlewareAdminLocal, (req, res) => {
     const datos = db.leerDatos();
     const tarjeta = datos.tarjetas.find(t => t.uid === uid);
     if (!tarjeta) return res.status(404).json({ error: "Tarjeta no encontrada" });
+    
     const balanceActual = parseFloat(tarjeta.balance) || 0;
-    const montoCambio = parseFloat(amount) || 0;
-    tarjeta.balance = balanceActual + montoCambio;
+    const montoCambio = parseFloat(amount);
+    
+    let nuevoBalance = balanceActual + montoCambio;
+    
+    if (nuevoBalance < 0) {
+        nuevoBalance = 0;
+    }
+    
+    tarjeta.balance = nuevoBalance;
     db.guardarDatos(datos);
     res.json({ message: "Balance actualizado exitosamente" });
 });
