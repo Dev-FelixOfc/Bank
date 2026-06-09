@@ -32,7 +32,8 @@ router.get('/me', middlewareLocal, (req, res) => {
             rol: user.rol,
             balance: balanceTotal,
             avatar: user.avatar || null,
-            cardsCount: tarjetasUsuario.length
+            cardsCount: tarjetasUsuario.length,
+            security_token: user.security_token || null
         });
     } catch (err) {
         res.status(500).json({ error: "Error en servidor: " + err.message });
