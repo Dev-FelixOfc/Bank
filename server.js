@@ -42,13 +42,14 @@ app.get('/api/public/profile/:alias', (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "Este alias no pertenece a ningun miembro de Kazuma Ecosystem" });
         }
-        const totalTarjetas = datos.tarjetas ? datos.tarjetas.filter(t => t.user_id === user.id).length : 0;
+        const tarjetasUsuario = datos.tarjetas ? datos.tarjetas.filter(t => t.user_id == user.id) : [];
+        const balanceTotal = tarjetasUsuario.reduce((sum, t) => sum + (parseFloat(t.balance) || 0), 0);
         res.json({
             username: user.username,
             alias: user.alias,
-            balance: user.balance || 0,
+            balance: balanceTotal,
             avatar: user.avatar || null,
-            cardsCount: totalTarjetas
+            cardsCount: tarjetasUsuario.length
         });
     } catch (err) {
         res.status(500).json({ error: "Error interno del servidor: " + err.message });
