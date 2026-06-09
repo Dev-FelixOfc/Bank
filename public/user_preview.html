@@ -3,125 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil Público - Bank Kazuma</title>
+    <title>Dashboard - Bank Kazuma</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
-        .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; }
+        body { font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; }
+        .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; position: relative; z-index: 100; }
         .logo { font-size: 22px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px; }
         .logo span { color: #111111; }
-        .container { max-width: 500px; margin: 50px auto; padding: 0 20px; }
-        .profile-card { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 28px; padding: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.03); text-align: center; }
-        .avatar-preview-wrapper { width: 120px; height: 120px; border-radius: 50%; background: #6f42c1; color: #ffffff; display: flex; justify-content: center; align-items: center; font-size: 44px; font-weight: 700; margin: 0 auto 20px auto; overflow: hidden; border: 4px solid #ffffff; box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
-        .user-name { font-size: 24px; font-weight: 700; color: #111111; margin-bottom: 4px; }
-        .user-alias { font-size: 15px; color: #6f42c1; font-weight: 600; margin-bottom: 30px; display: inline-block; background: #f3ebff; padding: 4px 14px; border-radius: 20px; }
-        .dash-card { background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%); color: #ffffff; border-radius: 20px; padding: 24px; text-align: left; box-shadow: 0 8px 24px rgba(111, 66, 193, 0.15); margin-bottom: 20px; }
-        .dash-card-label { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85; margin-bottom: 6px; font-weight: 600; }
-        .dash-card-value { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; }
-        .info-row { background: #f8f9fa; border: 1px solid #e1e5ee; border-radius: 16px; padding: 18px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .info-label { font-size: 14px; color: #666666; font-weight: 600; }
-        .info-value { font-size: 16px; color: #111111; font-weight: 700; }
-        .btn-action { background: #6f42c1; color: white; border: none; padding: 16px; border-radius: 16px; font-weight: 700; cursor: pointer; width: 100%; font-size: 16px; }
+        .menu-toggle { background: none; border: none; font-size: 24px; cursor: pointer; color: #6f42c1; }
+        .nav-menu { position: absolute; top: 100%; right: 24px; background: #ffffff; border: 1px solid #e1e5ee; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 220px; display: none; flex-direction: column; padding: 8px 0; }
+        .nav-menu.active { display: flex; }
+        .nav-item { padding: 12px 20px; color: #333333; text-decoration: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .nav-item:hover { background: #f3ebff; color: #6f42c1; }
+        .admin-option { border-top: 1px solid #e1e5ee; color: #dc3545; display: none; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px; }
+        .card { background: #ffffff; border: 1px solid #e1e5ee; border-radius: 20px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.01); }
+        .card-balance { background: linear-gradient(135deg, #6f42c1 0%, #492787 100%); color: #ffffff; }
+        .card-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 16px; color: #e1e5ee; }
+        .balance-value { font-size: 36px; font-weight: 800; margin-bottom: 8px; }
+        .btn-action { background: #6f42c1; color: #ffffff; border: none; padding: 12px 20px; font-size: 14px; font-weight: 600; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 14px; }
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center; }
-        .modal-content { background:white; padding:30px; border-radius:20px; width:90%; max-width:400px; position:relative; }
-        #toast { display:none; position:fixed; top:20px; right:20px; background:white; padding:20px; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.2); z-index:9999; border:1px solid #e1e5ee; }
-        .close-btn { cursor:pointer; font-weight:bold; float:right; font-size:18px; }
     </style>
 </head>
 <body>
 
-    <div id="toast"><span class="close-btn" onclick="this.parentElement.style.display='none'">X</span><p id="toast-text"></p></div>
-
-    <nav class="navbar"><div class="logo">Bank <span>Kazuma</span></div></nav>
+    <nav class="navbar">
+        <div class="logo">Bank <span>Kazuma</span></div>
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        <div class="nav-menu" id="menuDropdown">
+            <div class="nav-item" onclick="window.location.href='/profile'">Editar Perfil</div>
+            <div class="nav-item" id="btnPublicProfile" onclick="irAPerfilPublico()">Ver Perfil Público</div>
+            <div class="nav-item admin-option" id="btnAdminPanel" onclick="window.location.href='/admin'">Panel Admin</div>
+            <div class="nav-item" style="color: #dc3545;" onclick="cerrarSesion()">Cerrar Sesión</div>
+        </div>
+    </nav>
 
     <div class="container">
-        <div id="profile-container" class="profile-card" style="display: none;">
-            <div class="avatar-preview-wrapper"><span id="preview-initials">-</span></div>
-            <div class="user-name" id="preview-name"></div>
-            <div class="user-alias" id="preview-alias"></div>
-            <div class="dash-card">
-                <div class="dash-card-label">Fondos Totales</div>
-                <div class="dash-card-value" id="preview-balance">0.00 KZM</div>
+        <h1 id="txtWelcome">Cargando...</h1>
+        <div class="grid-cards" style="margin-top:20px;">
+            <div class="card card-balance">
+                <div class="card-title">Balance Total Disponible</div>
+                <div class="balance-value" id="numBalance">$0.00</div>
             </div>
-            <div class="info-row">
-                <div class="info-label">Tarjetas asociadas</div>
-                <div class="info-value" id="preview-cards">0</div>
+            <div class="card">
+                <div class="card-title">Tarjetas Asociadas</div>
+                <div class="balance-value" id="numCards">0 / 3</div>
+                <button class="btn-action" onclick="window.location.href='/cards'">Gestionar</button>
             </div>
-            <button class="btn-action" onclick="abrirModal()">Donar a este usuario</button>
-        </div>
-    </div>
-
-    <div id="donate-modal" class="modal">
-        <div class="modal-content">
-            <h3 style="margin-bottom:20px;">Donar a <span id="target-name"></span></h3>
-            <select id="user-cards" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px;"></select>
-            <input type="text" id="target-uid" placeholder="UID/ID del Destinatario" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
-            <input type="number" id="donation-amount" placeholder="Cantidad (KZM)" style="width:100%; padding:12px; margin-bottom:10px; border-radius:10px; border:1px solid #ccc;">
-            <button class="btn-action" onclick="procesarDonacion()">Confirmar Donación</button>
-            <button class="btn-action" style="background:#dc3545; margin-top:10px;" onclick="cerrarModal()">Cancelar</button>
+            <div class="card">
+                <div class="card-title">Token de Seguridad</div>
+                <div id="txtToken" style="font-size:14px; margin:10px 0;">No generado</div>
+                <button class="btn-action" id="btnTokenAction" onclick="generarToken()">Generar Token</button>
+            </div>
         </div>
     </div>
 
     <script>
-        let profileData = null;
+        let usuarioDatos = null;
+        let tokenSeguridadActual = null;
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const alias = window.location.pathname.split('/@')[1];
-            const res = await fetch(`/api/public/profile/${alias}`);
-            profileData = await res.json();
-            document.getElementById('preview-name').innerText = profileData.username;
-            document.getElementById('preview-alias').innerText = `@${profileData.alias}`;
-            document.getElementById('preview-balance').innerText = `${parseFloat(profileData.balance).toFixed(2)} KZM`;
-            document.getElementById('preview-cards').innerText = profileData.cardsCount;
-            document.getElementById('profile-container').style.display = 'block';
-        });
-
-        function mostrarMensaje(texto) {
-            document.getElementById('toast-text').innerText = texto;
-            document.getElementById('toast').style.display = 'block';
-        }
-
-        async function abrirModal() {
+        async function verificarAutenticacion() {
             const token = localStorage.getItem('token_kazuma');
-            if (!token) { mostrarMensaje("Debes iniciar sesión."); return; }
+            if (!token) { window.location.href = '/login'; return; }
             const res = await fetch('/api/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
-            const miData = await res.json();
-            const select = document.getElementById('user-cards');
-            select.innerHTML = '';
-            if (!miData.tarjetas || miData.tarjetas.length === 0) { mostrarMensaje("No tienes tarjetas."); return; }
-            miData.tarjetas.forEach(t => { select.innerHTML += `<option value="${t.uid}|${t.card_number}">Tarjeta ${t.uid} ($${t.balance})</option>`; });
-            document.getElementById('target-name').innerText = profileData.username;
-            document.getElementById('donate-modal').style.display = 'flex';
-        }
-
-        async function procesarDonacion() {
-            const token = localStorage.getItem('token_kazuma');
-            const [uidEmisor, numTarjeta] = document.getElementById('user-cards').value.split('|');
-            const cantidad = document.getElementById('donation-amount').value;
-            const uidDestino = document.getElementById('target-uid').value;
-            const miRes = await fetch('/api/users/me', { headers: { 'Authorization': `Bearer ${token}` }});
-            const miData = await miRes.json();
-            const res = await fetch('/api/users/transfer', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tokenEmisor: miData.security_token,
-                    uidEmisor: uidEmisor,
-                    numTarjetaEmisor: numTarjeta,
-                    uidReceptor: uidDestino,
-                    cantidad: cantidad
-                })
-            });
             const data = await res.json();
-            if (res.ok) {
-                mostrarMensaje("Transacción exitosa");
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                mostrarMensaje("Error: " + data.error);
+            
+            usuarioDatos = data;
+            tokenSeguridadActual = data.security_token;
+            
+            document.getElementById('txtWelcome').innerText = `¡Hola, ${data.username}!`;
+            
+            // Suma del balance de cuenta principal + todas las tarjetas
+            const balanceBase = parseFloat(data.balance || 0);
+            const balanceTarjetas = data.tarjetas ? data.tarjetas.reduce((s, t) => s + parseFloat(t.balance || 0), 0) : 0;
+            document.getElementById('numBalance').innerText = `$${(balanceBase + balanceTarjetas).toFixed(2)}`;
+            
+            document.getElementById('numCards').innerText = `${data.cardsCount || 0} / 3`;
+            if (data.rol === 'admin') document.getElementById('btnAdminPanel').style.display = 'block';
+            
+            if (tokenSeguridadActual) {
+                document.getElementById('txtToken').innerText = "●●●●●●●●●●";
+                document.getElementById('btnTokenAction').innerText = "Ver Token";
             }
         }
 
-        function cerrarModal() { document.getElementById('donate-modal').style.display = 'none'; }
+        function toggleMenu() { document.getElementById('menuDropdown').classList.toggle('active'); }
+        function irAPerfilPublico() { window.location.href = `/@${usuarioDatos.alias}`; }
+        function cerrarSesion() { localStorage.removeItem('token_kazuma'); window.location.href = '/login'; }
+        
+        document.addEventListener('DOMContentLoaded', verificarAutenticacion);
     </script>
 </body>
 </html>
