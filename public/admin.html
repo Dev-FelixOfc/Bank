@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <style>
+        #blackScreen { position: fixed; top:0; left:0; width:100%; height:100%; background: black; z-index: 9999; }
+        .hidden { display: none; }
+        .locked { opacity: 0.5; pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div id="blackScreen"></div> <!-- Pantalla negra inicial -->
+
+    <div id="adminContent" class="hidden">
+        <input type="text" id="search" placeholder="Buscar por nombre, correo o rol..." onkeyup="filterUsers()">
+        <table id="userTable">
+            <!-- Aquí se cargan los usuarios con fetch -->
+        </table>
+    </div>
+
+    <script>
+        // Protección de acceso
+        async function checkAdmin() {
+            const token = localStorage.getItem('token_kazuma');
+            try {
+                const res = await fetch('/api/admin/users', { headers: { 'Authorization': `Bearer ${token}` }});
+                if (!res.ok) throw new Error();
+                document.getElementById('blackScreen').remove();
+                document.getElementById('adminContent').classList.remove('hidden');
+                renderUsers(await res.json());
+            } catch {
+                window.location.href = '/dash';
+            }
+        }
+
+        function renderUsers(users) {
+            const table = document.getElementById('userTable');
+            table.innerHTML = users.map(u => `
+                <tr>
+                    <td>${u.username}</td>
+                    <td>${u.email} ${u.email === 'frasesbebor@gmail.com' ? '🔒' : ''}</td>
+                    <td>
+                        <button ${u.email === 'frasesbebor@gmail.com' ? 'disabled' : ''} onclick="changeRole('${u.id}')">Cambiar Rol</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterUsers() {
+            const val = document.getElementById('search').value.toLowerCase();
+            // Lógica de filtrado de filas de la tabla...
+        }
+
+        checkAdmin();
+    </script>
+</body>
+</html>
