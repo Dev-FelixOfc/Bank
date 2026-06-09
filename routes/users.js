@@ -33,6 +33,7 @@ router.get('/me', middlewareLocal, (req, res) => {
             balance: balanceTotal,
             avatar: user.avatar || null,
             cardsCount: tarjetasUsuario.length,
+            tarjetas: tarjetasUsuario,
             security_token: user.security_token || null
         });
     } catch (err) {
