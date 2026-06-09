@@ -20,8 +20,6 @@
         .modal-content input, .modal-content select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #e1e5ee; border-radius: 10px; }
         .btn-action { background: #6f42c1; color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; font-weight: 600; margin-top: 10px; }
         .close-x { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 18px; }
-        
-        /* Notificaciones */
         #notificationContainer { position: fixed; top: 20px; right: 20px; z-index: 9999; }
         .toast { background: #333; color: white; padding: 15px 20px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; min-width: 250px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
     </style>
@@ -117,6 +115,7 @@
         const d = await res.json();
         showToast(d.message || d.error);
         cerrar('cardModal');
+        setTimeout(() => location.reload(), 1500);
     }
 
     async function guardarUser() {
@@ -128,6 +127,7 @@
         const d = await res.json();
         showToast(d.message || d.error);
         cerrar('configModal');
+        setTimeout(() => location.reload(), 1500);
     }
 
     async function eliminarTarjeta() {
@@ -138,6 +138,7 @@
         const d = await res.json();
         showToast(d.message || d.error);
         cerrar('cardModal');
+        setTimeout(() => location.reload(), 1500);
     }
 
     function filtrar() {
