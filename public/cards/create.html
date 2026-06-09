@@ -2,42 +2,94 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Tarjeta - Bank Kazuma</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; padding: 40px; }
-        .box { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; background: #6f42c1; color: white; font-weight: 700; cursor: pointer; margin-top: 20px; }
-        .nav-link { display: block; text-align: center; margin-top: 15px; color: #6f42c1; text-decoration: none; font-weight: 600; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f8f9fa; color: #111111; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        .navbar { background: #ffffff; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e1e5ee; }
+        .nav-left { display: flex; align-items: center; gap: 16px; }
+        .menu-btn { background: none; border: none; font-size: 22px; color: #111111; cursor: pointer; padding: 4px; }
+        .logo { font-size: 22px; font-weight: 800; color: #6f42c1; letter-spacing: -0.5px; cursor: pointer; }
+        .logo span { color: #111111; }
+        
+        .sidebar { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background: #ffffff; box-shadow: 4px 0 15px rgba(0,0,0,0.05); transition: left 0.3s ease; z-index: 99; padding-top: 80px; }
+        .sidebar.active { left: 0; }
+        .sidebar-menu { list-style: none; display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; color: #333333; text-decoration: none; font-weight: 600; border-radius: 12px; transition: background 0.2s; }
+        .sidebar-item:hover { background: #f3ebff; color: #6f42c1; }
+        .sidebar-item i { font-size: 18px; width: 24px; text-align: center; }
+
+        .container { max-width: 500px; width: 100%; margin: 40px auto; padding: 24px; background: #ffffff; border-radius: 20px; border: 1px solid #e1e5ee; }
+        h2 { margin-bottom: 20px; font-size: 22px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        input[type="month"] { width: 100%; padding: 12px; border: 1px solid #e1e5ee; border-radius: 10px; font-family: inherit; }
+        .btn-create { background: #6f42c1; color: #ffffff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 16px; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.2); display: none; z-index: 98; }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
-    <div class="box">
-        <h2>Nueva Kazuma Card</h2>
-        <div style="margin: 20px 0;">
-            <label>Fecha de vencimiento:</label>
-            <input type="month" id="expDate" style="width:100%; padding:10px; margin-top:5px;">
-            <label><input type="checkbox" id="neverExpire" onclick="document.getElementById('expDate').disabled = this.checked"> No expira nunca</label>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <button class="menu-btn" onclick="toggleMenu()"><i class="fa-solid fa-bars"></i></button>
+            <div class="logo" onclick="window.location.href='/dash'">Bank <span>Kazuma</span></div>
         </div>
-        <button class="btn" onclick="crearTarjeta()">Generar Plástico</button>
-        <a href="/cards" class="nav-link">← Volver a Mis Tarjetas</a>
+    </nav>
+
+    <div class="overlay" id="menuOverlay" onclick="toggleMenu()"></div>
+
+    <div class="sidebar" id="sidebarMenu">
+        <ul class="sidebar-menu">
+            <li><a href="/cards" class="sidebar-item"><i class="fa-solid fa-credit-card"></i>Mis Tarjetas</a></li>
+            <li><a href="/create-card" class="sidebar-item" style="background: #eef2ff; color: #6f42c1;"><i class="fa-solid fa-plus"></i>Crear Tarjeta</a></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h2>Generar Nueva Kazuma Card</h2>
+        <div class="form-group">
+            <label>Fecha de Vencimiento</label>
+            <input type="month" id="expDate">
+            <label style="margin-top: 10px;">
+                <input type="checkbox" id="neverExpire" onclick="document.getElementById('expDate').disabled = this.checked"> No expira nunca
+            </label>
+        </div>
+        <button class="btn-create" onclick="crearTarjeta()">Confirmar y Crear</button>
     </div>
 
     <script>
+        function toggleMenu() {
+            document.getElementById('sidebarMenu').classList.toggle('active');
+            document.getElementById('menuOverlay').classList.toggle('active');
+        }
+
         function crearTarjeta() {
+            const token = localStorage.getItem('token_kazuma');
+            const nuncaVence = document.getElementById('neverExpire').checked;
+            const fecha = document.getElementById('expDate').value;
+
             fetch('/api/cards/new', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token_kazuma')}` },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
                 body: JSON.stringify({ 
-                    nunca_vence: document.getElementById('neverExpire').checked,
-                    fecha_vence: document.getElementById('expDate').value 
+                    nunca_vence: nuncaVence,
+                    fecha_vence: nuncaVence ? "NUNCA" : fecha 
                 })
             })
             .then(res => res.json())
             .then(data => {
                 if(data.error) alert(data.error);
                 else window.location.href = '/cards';
-            });
+            })
+            .catch(() => alert('Error al conectar con el servidor'));
         }
     </script>
 </body>
