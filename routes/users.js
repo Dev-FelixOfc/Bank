@@ -106,19 +106,23 @@ router.post('/generate-security-token', middlewareLocal, (req, res) => {
 
 router.post('/transfer', (req, res) => {
     try {
-        const { tokenEmisor, tokenReceptor, uidEmisor, uidReceptor, cantidad } = req.body;
+        const { tokenEmisor, uidEmisor, numTarjetaEmisor, uidReceptor, cantidad } = req.body;
         const monto = parseFloat(cantidad);
         if (!monto || monto <= 0) return res.status(400).json({ error: "Cantidad invalida" });
+        
         const datos = db.leerDatos();
         const emisor = datos.usuarios.find(u => u.security_token === tokenEmisor);
-        const receptor = datos.usuarios.find(u => u.security_token === tokenReceptor);
-        if (!emisor || !receptor) return res.status(401).json({ error: "Token invalido" });
-        const tarEmisor = datos.tarjetas.find(t => t.uid === uidEmisor && t.user_id === emisor.id);
-        const tarReceptor = datos.tarjetas.find(t => t.uid === uidReceptor && t.user_id === receptor.id);
-        if (!tarEmisor || !tarReceptor) return res.status(404).json({ error: "Tarjeta invalida o no pertenece al usuario" });
+        const tarEmisor = datos.tarjetas.find(t => t.uid === uidEmisor && t.numero === numTarjetaEmisor && t.user_id === emisor?.id);
+        const tarReceptor = datos.tarjetas.find(t => t.uid === uidReceptor);
+        
+        if (!emisor) return res.status(401).json({ error: "Token invalido" });
+        if (!tarEmisor) return res.status(404).json({ error: "Datos de tarjeta de origen incorrectos" });
+        if (!tarReceptor) return res.status(404).json({ error: "Tarjeta de destino no encontrada" });
         if (parseFloat(tarEmisor.balance) < monto) return res.status(400).json({ error: "Fondos insuficientes" });
+        
         tarEmisor.balance = parseFloat(tarEmisor.balance) - monto;
         tarReceptor.balance = parseFloat(tarReceptor.balance) + monto;
+        
         db.guardarDatos(datos);
         res.json({ mensaje: "Transacción realizada exitosamente." });
     } catch (err) {
