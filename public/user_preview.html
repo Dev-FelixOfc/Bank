@@ -73,10 +73,12 @@
             document.getElementById('preview-name').innerText = profileData.username;
             document.getElementById('preview-alias').innerText = `@${profileData.alias}`;
             
-            // LÓGICA CORREGIDA: Suma balance base + balance de tarjetas del perfil
-            const balanceBase = parseFloat(profileData.balance || 0);
-            const balanceTarjetas = profileData.tarjetas ? profileData.tarjetas.reduce((sum, t) => sum + parseFloat(t.balance || 0), 0) : 0;
-            document.getElementById('preview-balance').innerText = `${(balanceBase + balanceTarjetas).toFixed(2)} KZM`;
+            if (profileData.username) {
+                document.getElementById('preview-initials').innerText = profileData.username.charAt(0).toUpperCase();
+            }
+            
+            const totalCalculado = parseFloat(profileData.balance || 0);
+            document.getElementById('preview-balance').innerText = `${totalCalculado.toFixed(2)} KZM`;
             
             document.getElementById('preview-cards').innerText = profileData.cardsCount;
             document.getElementById('profile-container').style.display = 'block';
