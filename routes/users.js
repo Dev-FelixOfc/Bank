@@ -30,7 +30,7 @@ router.get('/me', middlewareLocal, (req, res) => {
             email: user.email,
             alias: user.alias,
             rol: user.rol,
-            balance: user.balance || 0,
+            balance: balanceTotal,
             avatar: user.avatar || null,
             cardsCount: tarjetasUsuario.length,
             tarjetas: tarjetasUsuario,
